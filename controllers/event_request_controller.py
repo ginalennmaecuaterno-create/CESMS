@@ -30,6 +30,7 @@ def request_event():
         start_time = request.form.get("start_time")
         end_time = request.form.get("end_time")
         participant_limit = request.form.get("participant_limit")
+        requirements_json = request.form.get("requirements")
 
         print(event_name, location, date, start_time, end_time, )
         
@@ -38,15 +39,47 @@ def request_event():
             flash("Please fill in all required fields.", "danger")
             return render_template("department_request_event.html", user=user)
         
+        # Check for schedule conflict before submission
+        from models.event_request_management import EventRequestManagement
+        has_conflict, conflicts = EventRequestManagement.check_schedule_conflict(
+            location=location,
+            date=date,
+            start_time=start_time,
+            end_time=end_time
+        )
+        
+        if has_conflict:
+            # Build conflict message
+            conflict_msg = "Schedule conflict detected! This time slot conflicts with: "
+            conflict_details = []
+            for c in conflicts:
+                if c["type"] == "approved_event":
+                    conflict_details.append(f"Approved Event '{c['name']}' ({c['time']})")
+                else:
+                    conflict_details.append(f"Pending Request '{c['name']}' ({c['time']})")
+            conflict_msg += ", ".join(conflict_details)
+            flash(conflict_msg, "danger")
+            return render_template("department_request_event.html", user=user)
+        
         try:
+            import json
+            
             # Convert participant_limit to int if provided
             if participant_limit and participant_limit.strip():
                 participant_limit = int(participant_limit)
             else:
                 participant_limit = None
             
-            # Create event request
-            EventRequest.create_event_request(
+            # Parse requirements if provided
+            requirements = []
+            if requirements_json:
+                try:
+                    requirements = json.loads(requirements_json)
+                except:
+                    requirements = []
+            
+            # Create event request with requirements as JSON
+            response = EventRequest.create_event_request(
                 department_id=user["id"],
                 event_name=event_name,
                 description=description,
@@ -56,6 +89,15 @@ def request_event():
                 end_time=end_time,
                 participant_limit=participant_limit
             )
+            
+            # Store requirements in the event_requests table as JSON
+            if requirements and response.data:
+                event_request_id = response.data[0]["id"]
+                
+                # Update the event request with requirements JSON
+                supabase.table("event_requests").update({
+                    "requirements": requirements
+                }).eq("id", event_request_id).execute()
             
             flash("Event request submitted successfully! Awaiting OSAS approval.", "success")
             return redirect(url_for("event_request.request_event"))

@@ -1,0 +1,105 @@
+{% extends "base_department.html" %}
+
+{% block title %}Attendance Report - Department Panel{% endblock %}
+
+{% block content %}
+<!-- Premium Header -->
+<div class="bg-white border-b border-gray-200 py-8 sm:py-12 lg:py-16 px-4 sm:px-6 lg:px-8 mb-8 sm:mb-12">
+  <div class="max-w-7xl mx-auto">
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div>
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-light mb-2 sm:mb-4 tracking-tight text-gray-900">Attendance Report</h1>
+        <p class="text-base sm:text-lg lg:text-xl text-gray-600">{{ event.event_name }}</p>
+      </div>
+      <a href="{{ url_for('department_event_management.view_department_events') }}" 
+         class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 sm:px-5 sm:py-3 rounded-lg sm:rounded-xl transition-all duration-300 text-sm sm:text-base font-semibold">
+        Back
+      </a>
+    </div>
+  </div>
+</div>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8 sm:pb-12 lg:pb-16">
+  <!-- Statistics Cards -->
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8 lg:mb-12">
+    <div class="bg-gradient-to-br from-blue-400 to-blue-500 rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 text-white shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300">
+      <p class="text-3xl sm:text-4xl lg:text-5xl font-bold mb-1 sm:mb-2">{{ total_approved }}</p>
+      <p class="text-blue-100 text-sm sm:text-base lg:text-lg font-medium">Total Approved</p>
+    </div>
+    <div class="bg-gradient-to-br from-green-400 to-green-500 rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 text-white shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300">
+      <p class="text-3xl sm:text-4xl lg:text-5xl font-bold mb-1 sm:mb-2">{{ total_attended }}</p>
+      <p class="text-green-100 text-sm sm:text-base lg:text-lg font-medium">Attended</p>
+    </div>
+    <div class="bg-gradient-to-br from-red-400 to-red-500 rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 text-white shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300">
+      <p class="text-3xl sm:text-4xl lg:text-5xl font-bold mb-1 sm:mb-2">{{ total_approved - total_attended }}</p>
+      <p class="text-red-100 text-sm sm:text-base lg:text-lg font-medium">Not Yet Attended</p>
+    </div>
+    <div class="bg-gradient-to-br from-purple-400 to-purple-500 rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 text-white shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300">
+      <p class="text-3xl sm:text-4xl lg:text-5xl font-bold mb-1 sm:mb-2">{{ attendance_rate }}%</p>
+      <p class="text-purple-100 text-sm sm:text-base lg:text-lg font-medium">Attendance Rate</p>
+    </div>
+  </div>
+
+  <!-- Action Buttons -->
+  {% if event_display_status in ['Active', 'Ongoing'] %}
+  <div class="mb-6 sm:mb-8">
+    <a href="{{ url_for('attendance.scan_qr') }}" 
+       class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 sm:px-6 sm:py-3 rounded-xl transition-all duration-300 text-sm sm:text-base font-semibold">
+      Scan QR Codes
+    </a>
+  </div>
+  {% else %}
+  <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 sm:p-6 mb-6 sm:mb-8">
+    <p class="text-sm sm:text-base text-blue-800">QR scanning is only available for Active and Ongoing events.</p>
+  </div>
+  {% endif %}
+
+  <!-- Attendance List -->
+  <div class="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 shadow-sm border border-gray-100">
+    <h2 class="text-lg sm:text-xl lg:text-2xl font-semibold text-gray-900 mb-4 sm:mb-6 lg:mb-8">Attendance List</h2>
+    
+    {% if registrations %}
+    <div class="overflow-x-auto">
+      <table class="w-full">
+        <thead>
+          <tr class="border-b-2 border-gray-200">
+            <th class="text-left py-3 sm:py-4 px-2 sm:px-4 text-xs sm:text-sm font-semibold text-gray-700">Student Name</th>
+            <th class="text-left py-3 sm:py-4 px-2 sm:px-4 text-xs sm:text-sm font-semibold text-gray-700">Student ID</th>
+            <th class="text-left py-3 sm:py-4 px-2 sm:px-4 text-xs sm:text-sm font-semibold text-gray-700 hidden sm:table-cell">Email</th>
+            <th class="text-left py-3 sm:py-4 px-2 sm:px-4 text-xs sm:text-sm font-semibold text-gray-700">Status</th>
+            <th class="text-left py-3 sm:py-4 px-2 sm:px-4 text-xs sm:text-sm font-semibold text-gray-700 hidden lg:table-cell">Check-in Time</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for reg in registrations %}
+          <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors duration-200">
+            <td class="py-3 sm:py-4 px-2 sm:px-4 text-xs sm:text-sm text-gray-900">{{ reg.users.full_name if reg.users else 'N/A' }}</td>
+            <td class="py-3 sm:py-4 px-2 sm:px-4 text-xs sm:text-sm text-gray-600">{{ reg.users.student_id if reg.users else 'N/A' }}</td>
+            <td class="py-3 sm:py-4 px-2 sm:px-4 text-xs sm:text-sm text-gray-600 hidden sm:table-cell">{{ reg.users.email if reg.users else 'N/A' }}</td>
+            <td class="py-3 sm:py-4 px-2 sm:px-4">
+              {% if reg.attended %}
+              <span class="inline-flex items-center px-2 sm:px-3 py-1 rounded-lg text-xs sm:text-sm font-semibold bg-green-100 text-green-800">Attended</span>
+              {% else %}
+              <span class="inline-flex items-center px-2 sm:px-3 py-1 rounded-lg text-xs sm:text-sm font-semibold bg-yellow-100 text-yellow-800">Not Yet</span>
+              {% endif %}
+            </td>
+            <td class="py-3 sm:py-4 px-2 sm:px-4 text-xs sm:text-sm text-gray-600 hidden lg:table-cell">
+              {% if reg.attendance_time %}{{ reg.attendance_time }}{% else %}-{% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="text-center py-12 sm:py-16">
+      <svg class="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 mx-auto mb-4 sm:mb-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+      </svg>
+      <p class="text-base sm:text-lg lg:text-xl text-gray-500">No approved registrations for this event.</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}

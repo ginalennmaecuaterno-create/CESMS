@@ -3,148 +3,153 @@
 {% block title %}{{ event.event_name }} - Registrations{% endblock %}
 
 {% block content %}
-<div class="page-header">
-  <h1>{{ event.event_name }} - Registration Details</h1>
-  <a href="{{ url_for('event_registrations.view_event_registrations') }}" class="btn-back">← Back to Events</a>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/department_event_registration_details.css') }}?v=1">
-</div>
-
-
-
-<div class="event-info-summary">
-  <h2>Event Information</h2>
-  <div class="info-grid">
-    <div class="info-item">
-      <strong>Date:</strong> {{ event.date }}
-    </div>
-    <div class="info-item">
-      <strong>Time:</strong> {{ event.start_time }} - {{ event.end_time }}
-    </div>
-    <div class="info-item">
-      <strong>Location:</strong> {{ event.location }}
-    </div>
-    <div class="info-item">
-      <strong>Participant Limit:</strong> 
-      {% if event.participant_limit %}
-        {{ event.participant_limit }}
-      {% else %}
-        Unlimited
-      {% endif %}
-    </div>
-  </div>
-</div>
-
-<div class="registration-summary">
-  <h2>Registration Statistics</h2>
-  <div class="summary-cards">
-    <div class="summary-card">
-      <h3>Pending</h3>
-      <p class="count">{{ counts.Pending }}</p>
-    </div>
-    <div class="summary-card">
-      <h3>Approved</h3>
-      <p class="count">{{ counts.Approved }}</p>
-    </div>
-    
-    <div class="summary-card">
-      <h3>Rejected</h3>
-      <p class="count">{{ counts.Rejected }}</p>
-    </div>
-  </div>
-</div>
-
-<div class="filter-section">
-  <h3>Filter by Status:</h3>
-  <div class="filter-buttons">
-    <a href="{{ url_for('event_registrations.view_event_registration_details', event_id=event.id, status='all') }}" 
-       class="filter-btn {% if status_filter == 'all' %}active{% endif %}">
-      All
-    </a>
-    <a href="{{ url_for('event_registrations.view_event_registration_details', event_id=event.id, status='pending') }}" 
-       class="filter-btn {% if status_filter == 'pending' %}active{% endif %}">
-      Pending
-    </a>
-    <a href="{{ url_for('event_registrations.view_event_registration_details', event_id=event.id, status='approved') }}" 
-       class="filter-btn {% if status_filter == 'approved' %}active{% endif %}">
-      Approved
-    </a>
-  
-    <a href="{{ url_for('event_registrations.view_event_registration_details', event_id=event.id, status='rejected') }}" 
-       class="filter-btn {% if status_filter == 'rejected' %}active{% endif %}">
-      Rejected
-    </a>
-  </div>
-</div>
-
-<!-- Replace the registrations-list section with this card-based structure -->
-
-<div class="registrations-list">
-  <h2>Registration/s</h2>
-  
-  {% if registrations %}
-    <div class="registration-cards">
-      {% for reg in registrations %}
-      <div class="registration-card">
-        <div class="card-header">
-          <div class="student-name">{{ reg.users.full_name }}</div>
-          <div class="student-id">{{ reg.users.student_id }}</div>
-        </div>
-        
-        <div class="card-body">
-          <div class="card-info-row">
-            <span class="info-label">Email</span>
-            <span class="info-value">{{ reg.users.email }}</span>
-          </div>
-          
-          <div class="card-info-row">
-            <span class="info-label">Status</span>
-            <span class="status-badge status-{{ reg.registration_status.lower().replace('-', '') }}">
-              {{ reg.registration_status }}
-            </span>
-          </div>
-          
-          <div class="card-info-row">
-            <span class="info-label">Registered On</span>
-            <span class="info-value">{{ reg.created_at[:10] }}</span>
-          </div>
-        </div>
-        
-        <div class="qr-section">
-          <span class="info-label">QR Code</span>
-          {% if reg.unique_code %}
-            <div class="qr-indicator">Generated</div>
-            <div class="qr-code-text">{{ reg.unique_code[:8] }}...</div>
-          {% else %}
-            <div class="qr-indicator-none">Not Generated</div>
-          {% endif %}
-        </div>
-        
-        <div class="card-actions">
-          {% if reg.registration_status == 'Pending' %}
-            <a href="{{ url_for('event_registrations.approve_registration', registration_id=reg.id, event_id=event.id) }}" 
-               class="btn-approve"
-               onclick="return confirm('Approve this registration? A QR code will be generated.')">
-              Approve
-            </a>
-            <a href="{{ url_for('event_registrations.reject_registration', registration_id=reg.id, event_id=event.id) }}" 
-               class="btn-reject"
-               onclick="return confirm('Reject this registration?')">
-              Reject
-            </a>
-          {% else %}
-            <span class="no-action">No actions available</span>
-          {% endif %}
-        </div>
+<!-- Premium Header -->
+<div class="bg-white border-b border-gray-200 py-8 sm:py-12 lg:py-16 px-4 sm:px-6 lg:px-8 mb-8 sm:mb-12">
+  <div class="max-w-7xl mx-auto">
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div>
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-light mb-2 sm:mb-4 tracking-tight text-gray-900">Registration Details</h1>
+        <p class="text-base sm:text-lg lg:text-xl text-gray-600">{{ event.event_name }}</p>
       </div>
-      {% endfor %}
+      <a href="{{ url_for('event_registrations.view_event_registrations') }}" 
+         class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 sm:px-5 sm:py-3 rounded-lg sm:rounded-xl transition-all duration-300 text-xs sm:text-sm font-semibold">
+        Back
+      </a>
     </div>
-  {% else %}
-    <div class="no-registrations">
-      <p>No registrations found for this filter.</p>
-    </div>
-  {% endif %}
+  </div>
 </div>
 
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8 sm:pb-12 lg:pb-16">
+  <!-- Event Details -->
+  <div class="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 shadow-sm border border-gray-100 mb-6 sm:mb-8">
+    <h2 class="text-lg sm:text-xl lg:text-2xl font-semibold text-gray-900 mb-4 sm:mb-6">Event Information</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
+      <div class="p-3 sm:p-4 bg-gray-50 rounded-lg sm:rounded-xl">
+        <p class="text-xs sm:text-sm text-gray-600 mb-1">Date</p>
+        <p class="text-sm sm:text-base lg:text-lg font-semibold text-gray-900">{{ event.date }}</p>
+      </div>
+      <div class="p-3 sm:p-4 bg-gray-50 rounded-lg sm:rounded-xl">
+        <p class="text-xs sm:text-sm text-gray-600 mb-1">Time</p>
+        <p class="text-sm sm:text-base lg:text-lg font-semibold text-gray-900">{{ event.start_time|time_12hr }} - {{ event.end_time|time_12hr }}</p>
+      </div>
+      <div class="p-3 sm:p-4 bg-gray-50 rounded-lg sm:rounded-xl">
+        <p class="text-xs sm:text-sm text-gray-600 mb-1">Location</p>
+        <p class="text-sm sm:text-base lg:text-lg font-semibold text-gray-900">{{ event.location }}</p>
+      </div>
+      <div class="p-3 sm:p-4 bg-gray-50 rounded-lg sm:rounded-xl">
+        <p class="text-xs sm:text-sm text-gray-600 mb-1">Participant Limit</p>
+        <p class="text-sm sm:text-base lg:text-lg font-semibold text-gray-900">
+          {% if event.participant_limit %}{{ event.participant_limit }}{% else %}Unlimited{% endif %}
+        </p>
+      </div>
+    </div>
+  </div>
 
-<script src="{{ url_for('static', filename='js/department_event_registration_details.js') }}?v=1"></script>
+  <!-- Registration Statistics -->
+  <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8 lg:mb-12">
+    <div class="bg-gradient-to-br from-yellow-400 to-yellow-500 rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 text-white shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300">
+      <p class="text-3xl sm:text-4xl lg:text-5xl font-bold mb-1 sm:mb-2">{{ counts.Pending }}</p>
+      <p class="text-yellow-100 text-sm sm:text-base lg:text-lg font-medium">Pending</p>
+    </div>
+    <div class="bg-gradient-to-br from-green-400 to-green-500 rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 text-white shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300">
+      <p class="text-3xl sm:text-4xl lg:text-5xl font-bold mb-1 sm:mb-2">{{ counts.Approved }}</p>
+      <p class="text-green-100 text-sm sm:text-base lg:text-lg font-medium">Approved</p>
+    </div>
+    <div class="bg-gradient-to-br from-red-400 to-red-500 rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 text-white shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300">
+      <p class="text-3xl sm:text-4xl lg:text-5xl font-bold mb-1 sm:mb-2">{{ counts.Rejected }}</p>
+      <p class="text-red-100 text-sm sm:text-base lg:text-lg font-medium">Rejected</p>
+    </div>
+  </div>
+
+  <!-- Filter Section -->
+  <div class="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-100 mb-6 sm:mb-8">
+    <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Filter by Status</h3>
+    <div class="flex flex-wrap gap-2 sm:gap-3">
+      <a href="{{ url_for('event_registrations.view_event_registration_details', event_id=event.id, status='all') }}" 
+         class="px-3 py-2 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm font-semibold transition-all duration-300
+         {% if status_filter == 'all' %}bg-blue-600 text-white{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}">
+        All
+      </a>
+      <a href="{{ url_for('event_registrations.view_event_registration_details', event_id=event.id, status='pending') }}" 
+         class="px-3 py-2 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm font-semibold transition-all duration-300
+         {% if status_filter == 'pending' %}bg-blue-600 text-white{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}">
+        Pending
+      </a>
+      <a href="{{ url_for('event_registrations.view_event_registration_details', event_id=event.id, status='approved') }}" 
+         class="px-3 py-2 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm font-semibold transition-all duration-300
+         {% if status_filter == 'approved' %}bg-blue-600 text-white{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}">
+        Approved
+      </a>
+      <a href="{{ url_for('event_registrations.view_event_registration_details', event_id=event.id, status='rejected') }}" 
+         class="px-3 py-2 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm font-semibold transition-all duration-300
+         {% if status_filter == 'rejected' %}bg-blue-600 text-white{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}">
+        Rejected
+      </a>
+    </div>
+  </div>
+
+  <!-- Registrations List -->
+  <div class="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 shadow-sm border border-gray-100">
+    <h2 class="text-lg sm:text-xl lg:text-2xl font-semibold text-gray-900 mb-4 sm:mb-6 lg:mb-8">Registrations</h2>
+    
+    {% if registrations %}
+      <div class="space-y-3 sm:space-y-4">
+        {% for reg in registrations %}
+        <div class="bg-gray-50 rounded-lg sm:rounded-xl p-4 sm:p-6 hover:shadow-lg transition-all duration-300 border border-gray-200">
+          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div class="flex items-start gap-3 sm:gap-4 flex-1">
+              <!-- Avatar -->
+              <div class="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-base sm:text-lg lg:text-xl font-bold shadow-lg flex-shrink-0">
+                {{ reg.users.full_name[0] }}
+              </div>
+              
+              <div class="flex-1 min-w-0">
+                <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-1">{{ reg.users.full_name }}</h3>
+                <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 text-xs sm:text-sm text-gray-600">
+                  <span>{{ reg.users.student_id }}</span>
+                  <span class="hidden sm:inline">•</span>
+                  <span class="truncate">{{ reg.users.email }}</span>
+                  <span class="hidden sm:inline">•</span>
+                  <span>{{ reg.created_at[:10] if reg.created_at else 'N/A' }}</span>
+                </div>
+                
+                <div class="mt-2 sm:mt-3">
+                  <span class="inline-flex items-center px-3 py-1 rounded-lg text-xs sm:text-sm font-semibold
+                    {% if reg.registration_status == 'Approved' %}bg-green-100 text-green-800
+                    {% elif reg.registration_status == 'Pending' %}bg-yellow-100 text-yellow-800
+                    {% elif reg.registration_status == 'Rejected' %}bg-red-100 text-red-800
+                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                    {{ reg.registration_status }}
+                  </span>
+                </div>
+              </div>
+            </div>
+            
+            {% if reg.registration_status == 'Pending' %}
+            <div class="flex flex-wrap gap-2 sm:gap-3">
+              <a href="/department/requirements/verify?registration_id={{ reg.id }}&event_id={{ event.id }}" 
+                 class="flex-1 sm:flex-none text-center bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl transition-all duration-300 text-xs sm:text-sm font-semibold">
+                Verify Requirements
+              </a>
+            </div>
+            {% elif reg.registration_status == 'Approved' %}
+            <span class="text-xs sm:text-sm text-green-600 font-semibold">✓ Approved</span>
+            {% elif reg.registration_status == 'Rejected' %}
+            <span class="text-xs sm:text-sm text-red-600 font-semibold">✗ Rejected</span>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="text-center py-12 sm:py-16">
+        <svg class="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 mx-auto mb-4 sm:mb-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+        </svg>
+        <p class="text-base sm:text-lg lg:text-xl text-gray-500">No registrations found for this filter.</p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
 {% endblock %}

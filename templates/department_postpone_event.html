@@ -3,143 +3,113 @@
 {% block title %}Postpone Event{% endblock %}
 
 {% block content %}
-
-<link rel="stylesheet" href="{{ url_for('static', filename='css/postpone_event.css') }}?v=1">
-
-<div class="page-header">
-  <div class="header-content">
-    <h1>Reschedule your event to a new date and time</h1>
-    
+<!-- Premium Header -->
+<div class="bg-white border-b border-gray-200 py-8 sm:py-12 lg:py-16 px-4 sm:px-6 lg:px-8 mb-8 sm:mb-12">
+  <div class="max-w-7xl mx-auto">
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div>
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-light mb-2 sm:mb-4 tracking-tight text-gray-900">Postpone Event</h1>
+        <p class="text-base sm:text-lg lg:text-xl text-gray-600">Reschedule your event to a new date and time</p>
+      </div>
+      <a href="{{ url_for('department_event_management.view_department_events') }}" 
+         class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 sm:px-5 sm:py-3 rounded-lg sm:rounded-xl transition-all duration-300 text-sm sm:text-base font-semibold">
+        Back to Events
+      </a>
+    </div>
   </div>
-  <a href="{{ url_for('department_event_management.view_department_events') }}" class="btn-back">
-    ← Back to Events
-  </a>
 </div>
 
-
-<div class="content-grid">
-  <div class="main-content">
-    <div class="event-details-card">
-      <div class="card-header">
-        <h2>Current Event Details</h2>
-        <span class="status-indicator">Active</span>
-      </div>
-      
-      <div class="event-info-grid">
-        <div class="info-item">
-          <div class="info-icon">📌</div>
-          <div class="info-content">
-            <span class="info-label">Event Name</span>
-            <span class="info-value">{{ event.event_name }}</span>
-          </div>
-        </div>
-        
-        <div class="info-item">
-          <div class="info-icon">📍</div>
-          <div class="info-content">
-            <span class="info-label">Location</span>
-            <span class="info-value">{{ event.location }}</span>
-          </div>
-        </div>
-        
-        <div class="info-item">
-          <div class="info-icon">📅</div>
-          <div class="info-content">
-            <span class="info-label">Current Date</span>
-            <span class="info-value">{{ event.date }}</span>
-          </div>
-        </div>
-        
-        <div class="info-item">
-          <div class="info-icon">🕐</div>
-          <div class="info-content">
-            <span class="info-label">Current Time</span>
-            <span class="info-value">{{ event.start_time }} - {{ event.end_time }}</span>
-          </div>
-        </div>
-        
-        {% if event.description %}
-        <div class="info-item full-width">
-          <div class="info-icon">📝</div>
-          <div class="info-content">
-            <span class="info-label">Description</span>
-            <span class="info-value">{{ event.description }}</span>
-          </div>
-        </div>
-        {% endif %}
-      </div>
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-8 sm:pb-12 lg:pb-16">
+  <!-- Current Event Details -->
+  <div class="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 shadow-sm border border-gray-100 mb-6 sm:mb-8">
+    <div class="flex items-center justify-between mb-4 sm:mb-6">
+      <h2 class="text-lg sm:text-xl lg:text-2xl font-semibold text-gray-900">Current Event Details</h2>
+      <span class="inline-flex items-center px-3 py-1 rounded-lg text-xs sm:text-sm font-semibold bg-green-100 text-green-800">Active</span>
     </div>
-
-    <div class="postpone-form-card">
-      <div class="card-header">
-        <h2>New Schedule</h2>
-        <span class="form-subtitle">Set the new date and time for this event</span>
+    
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+      <div class="p-4 bg-gray-50 rounded-xl">
+        <p class="text-xs sm:text-sm text-gray-600 mb-1">Event Name</p>
+        <p class="text-sm sm:text-base font-semibold text-gray-900">{{ event.event_name }}</p>
       </div>
-      
-      <form method="POST" id="postponeForm">
-        <div class="form-row">
-          <div class="form-group">
-            <label for="new_date">
-              <span class="label-icon">📅</span>
-              New Date
-              <span class="required">*</span>
-            </label>
-            <input type="date" 
-                   id="new_date" 
-                   name="new_date" 
-                   class="form-control"
-                   required>
-            <small class="form-hint">Select a future date</small>
-          </div>
+      <div class="p-4 bg-gray-50 rounded-xl">
+        <p class="text-xs sm:text-sm text-gray-600 mb-1">Location</p>
+        <p class="text-sm sm:text-base font-semibold text-gray-900">{{ event.location }}</p>
+      </div>
+      <div class="p-4 bg-gray-50 rounded-xl">
+        <p class="text-xs sm:text-sm text-gray-600 mb-1">Current Date</p>
+        <p class="text-sm sm:text-base font-semibold text-gray-900">{{ event.date }}</p>
+      </div>
+      <div class="p-4 bg-gray-50 rounded-xl">
+        <p class="text-xs sm:text-sm text-gray-600 mb-1">Current Time</p>
+        <p class="text-sm sm:text-base font-semibold text-gray-900">{{ event.start_time|time_12hr }} - {{ event.end_time|time_12hr }}</p>
+      </div>
+      {% if event.description %}
+      <div class="p-4 bg-gray-50 rounded-xl sm:col-span-2">
+        <p class="text-xs sm:text-sm text-gray-600 mb-1">Description</p>
+        <p class="text-sm sm:text-base text-gray-900">{{ event.description }}</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Postpone Form -->
+  <div class="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 shadow-sm border border-gray-100">
+    <h2 class="text-lg sm:text-xl lg:text-2xl font-semibold text-gray-900 mb-4 sm:mb-6">New Schedule</h2>
+    
+    <form method="POST" id="postponeForm">
+      <div class="space-y-4 sm:space-y-6">
+        <div>
+          <label for="new_date" class="block text-sm font-semibold text-gray-900 mb-2">
+            New Date <span class="text-red-600">*</span>
+          </label>
+          <input type="date" 
+                 id="new_date" 
+                 name="new_date" 
+                 class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
+                 required>
+          <p class="text-xs sm:text-sm text-gray-600 mt-1">Select a future date</p>
         </div>
         
-        <div class="form-row">
-          <div class="form-group">
-            <label for="new_start_time">
-              <span class="label-icon">🕐</span>
-              New Start Time
-              <span class="required">*</span>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label for="new_start_time" class="block text-sm font-semibold text-gray-900 mb-2">
+              New Start Time <span class="text-red-600">*</span>
             </label>
             <input type="time" 
                    id="new_start_time" 
                    name="new_start_time" 
-                   class="form-control"
+                   class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
                    required>
-            <small class="form-hint">Event start time</small>
+            <p class="text-xs sm:text-sm text-gray-600 mt-1">Event start time</p>
           </div>
           
-          <div class="form-group">
-            <label for="new_end_time">
-              <span class="label-icon">🕐</span>
-              New End Time
-              <span class="required">*</span>
+          <div>
+            <label for="new_end_time" class="block text-sm font-semibold text-gray-900 mb-2">
+              New End Time <span class="text-red-600">*</span>
             </label>
             <input type="time" 
                    id="new_end_time" 
                    name="new_end_time" 
-                   class="form-control"
+                   class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
                    required>
-            <small class="form-hint">Event end time</small>
+            <p class="text-xs sm:text-sm text-gray-600 mt-1">Event end time</p>
           </div>
         </div>
         
-        <div class="form-actions">
-          <button type="submit" class="btn-primary">
-            <span class="btn-icon">✓</span>
+        <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4">
+          <button type="submit" 
+                  class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl transition-all duration-300 text-sm sm:text-base font-semibold">
             Postpone Event
           </button>
           <a href="{{ url_for('department_event_management.view_department_events') }}" 
-             class="btn-secondary">
-            <span class="btn-icon">✕</span>
+             class="flex-1 text-center bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-3 rounded-xl transition-all duration-300 text-sm sm:text-base font-semibold">
             Cancel
           </a>
         </div>
-      </form>
-    </div>
+      </div>
+    </form>
   </div>
-
-
 </div>
 
-<script src="{{ url_for('static', filename='js/postpone_event.js') }}?v=1"></script>  
 {% endblock %}

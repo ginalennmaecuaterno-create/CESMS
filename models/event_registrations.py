@@ -60,10 +60,11 @@ class EventRegistrations:
             img.save(buffered, format="PNG")
             qr_code_base64 = base64.b64encode(buffered.getvalue()).decode()
             
-            # Update registration with approved status and unique code
+            # Update registration with approved status, unique code, and approval timestamp
             result = supabase.table("registrations").update({
                 "registration_status": "Approved",
-                "unique_code": unique_code
+                "unique_code": unique_code,
+                "approved_at": "now()"
             }).eq("id", registration_id).execute()
             
             return result
@@ -76,7 +77,8 @@ class EventRegistrations:
         """Reject a registration"""
         return supabase.table("registrations").update({
             "registration_status": "Rejected",
-            "unique_code": None
+            "unique_code": None,
+            "rejected_at": "now()"
         }).eq("id", registration_id).execute()
 
     @staticmethod

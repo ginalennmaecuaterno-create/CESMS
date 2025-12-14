@@ -1,0 +1,157 @@
+{% extends "base_osas.html" %}
+
+{% block title %}Event Registrations - OSAS{% endblock %}
+
+{% block content %}
+<!-- Premium Header -->
+<div class="bg-white border-b border-gray-200 py-16 px-8 mb-12">
+  <div class="max-w-7xl mx-auto">
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-5xl font-light mb-4 tracking-tight text-gray-900">Event Registrations</h1>
+        <p class="text-xl text-gray-600">{{ event.event_name }}</p>
+      </div>
+      <a href="{{ url_for('osas_event_management.view_all_events') }}" 
+         class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl transition-all duration-300 shadow-sm">
+        Back to Events
+      </a>
+    </div>
+  </div>
+</div>
+
+<div class="max-w-7xl mx-auto px-8 pb-16">
+  <!-- Event Details -->
+  <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 mb-8">
+    <div class="flex items-center gap-3 mb-6">
+      <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+      <h2 class="text-2xl font-semibold text-gray-900">Event Details</h2>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div class="p-4 bg-gray-50 rounded-xl">
+        <p class="text-sm text-gray-600 mb-1">Location</p>
+        <p class="text-lg font-semibold text-gray-900">{{ event.location }}</p>
+      </div>
+      <div class="p-4 bg-gray-50 rounded-xl">
+        <p class="text-sm text-gray-600 mb-1">Date</p>
+        <p class="text-lg font-semibold text-gray-900">{{ event.date|date_readable }}</p>
+      </div>
+      <div class="p-4 bg-gray-50 rounded-xl">
+        <p class="text-sm text-gray-600 mb-1">Time</p>
+        <p class="text-lg font-semibold text-gray-900">{{ event.start_time|time_12hr }} - {{ event.end_time|time_12hr }}</p>
+      </div>
+      <div class="p-4 bg-gray-50 rounded-xl">
+        <p class="text-sm text-gray-600 mb-1">Participant Limit</p>
+        <p class="text-lg font-semibold text-gray-900">
+          {% if event.participant_limit %}
+            {{ event.participant_limit }}
+          {% else %}
+            Unlimited
+          {% endif %}
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Registration Statistics -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+    <div class="bg-gradient-to-br from-yellow-400 to-yellow-500 rounded-2xl p-8 text-white shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300">
+      <div class="flex items-center justify-between mb-4">
+        <svg class="w-12 h-12 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+      </div>
+      <p class="text-5xl font-bold mb-2">{{ counts.Pending }}</p>
+      <p class="text-yellow-100 text-lg font-medium">Pending</p>
+    </div>
+
+    <div class="bg-gradient-to-br from-green-400 to-green-500 rounded-2xl p-8 text-white shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300">
+      <div class="flex items-center justify-between mb-4">
+        <svg class="w-12 h-12 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+      </div>
+      <p class="text-5xl font-bold mb-2">{{ counts.Approved }}</p>
+      <p class="text-green-100 text-lg font-medium">Approved</p>
+    </div>
+
+    <div class="bg-gradient-to-br from-red-400 to-red-500 rounded-2xl p-8 text-white shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300">
+      <div class="flex items-center justify-between mb-4">
+        <svg class="w-12 h-12 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+      </div>
+      <p class="text-5xl font-bold mb-2">{{ counts.Rejected }}</p>
+      <p class="text-red-100 text-lg font-medium">Rejected</p>
+    </div>
+  </div>
+
+  <!-- Registrations List -->
+  <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+    <div class="flex items-center gap-3 mb-8">
+      <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+      </svg>
+      <h2 class="text-2xl font-semibold text-gray-900">Registrations List</h2>
+    </div>
+    
+    {% if registrations %}
+      <div class="space-y-4">
+        {% for reg in registrations %}
+        <div class="bg-gray-50 rounded-xl p-6 hover:shadow-lg transition-all duration-300 border border-gray-200">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-4">
+              <!-- Avatar -->
+              <div class="w-14 h-14 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-xl font-bold shadow-lg">
+                {{ reg.users.full_name[0] }}
+              </div>
+              
+              <div>
+                <h3 class="text-lg font-semibold text-gray-900">{{ reg.users.full_name }}</h3>
+                <div class="flex items-center gap-4 text-sm text-gray-600 mt-1">
+                  <span class="flex items-center gap-1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/>
+                    </svg>
+                    {{ reg.users.student_id }}
+                  </span>
+                  <span class="flex items-center gap-1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                    </svg>
+                    {{ reg.users.email }}
+                  </span>
+                  <span class="flex items-center gap-1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    {{ reg.created_at[:10] if reg.created_at else 'N/A' }}
+                  </span>
+                </div>
+              </div>
+            </div>
+            
+            <span class="inline-flex items-center px-4 py-2 rounded-xl text-sm font-semibold
+              {% if reg.registration_status == 'Approved' %}bg-green-100 text-green-800
+              {% elif reg.registration_status == 'Pending' %}bg-yellow-100 text-yellow-800
+              {% elif reg.registration_status == 'Rejected' %}bg-red-100 text-red-800
+              {% else %}bg-gray-100 text-gray-800{% endif %}">
+              {{ reg.registration_status }}
+            </span>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="text-center py-16">
+        <svg class="w-24 h-24 mx-auto mb-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+        </svg>
+        <p class="text-xl text-gray-500">No registrations found for this event.</p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}

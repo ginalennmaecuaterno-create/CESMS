@@ -1,0 +1,71 @@
+{% extends "base_student.html" %}
+
+{% block title %}Dashboard - Student Portal{% endblock %}
+
+{% block content %}
+<div style="min-height: 100vh;">
+  <!-- Header -->
+  <div style="background: var(--color-bg-secondary); border-bottom: 1px solid rgba(0, 0, 0, 0.06); padding: 3rem 2rem;">
+    <div class="container">
+      <h1 class="animate-fade-in">Welcome, {{ user.full_name }}</h1>
+      <p style="font-size: 1.05rem; color: var(--color-text-secondary); margin-top: 0.5rem;">{{ user.email }}</p>
+    </div>
+  </div>
+
+  <div class="container section">
+    <!-- Statistics Cards -->
+    <div class="grid grid-3 mb-xl">
+      <!-- Pending Registrations -->
+      <div class="stat-card stagger-item">
+        <div class="stat-card-icon" style="background: var(--color-warning-bg);">
+          <svg style="width: 28px; height: 28px; color: var(--color-warning);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        </div>
+        <div class="stat-card-label">Pending</div>
+        <div class="stat-card-value">{{ pending_count }}</div>
+      </div>
+
+      <!-- Approved Registrations -->
+      <div class="stat-card stagger-item">
+        <div class="stat-card-icon" style="background: var(--color-success-bg);">
+          <svg style="width: 28px; height: 28px; color: var(--color-success);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        </div>
+        <div class="stat-card-label">Approved</div>
+        <div class="stat-card-value">{{ approved_count }}</div>
+      </div>
+
+      <!-- Rejected Registrations -->
+      <div class="stat-card stagger-item">
+        <div class="stat-card-icon" style="background: var(--color-error-bg);">
+          <svg style="width: 28px; height: 28px; color: var(--color-error);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        </div>
+        <div class="stat-card-label">Rejected</div>
+        <div class="stat-card-value">{{ rejected_count }}</div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div>
+      <h2 class="mb-lg">Quick Actions</h2>
+      <div class="grid grid-2 gap-lg">
+        <a href="{{ url_for('student.view_events') }}" class="card stagger-item" style="text-decoration: none; padding: 2.5rem;">
+          <div style="font-size: 3.5rem; margin-bottom: 1.5rem;">🎉</div>
+          <h3 style="margin-bottom: 0.75rem; transition: var(--transition-fast);">Browse Events</h3>
+          <p>Discover and register for upcoming campus events</p>
+        </a>
+
+        <a href="{{ url_for('student.view_registrations') }}" class="card stagger-item" style="text-decoration: none; padding: 2.5rem;">
+          <div style="font-size: 3.5rem; margin-bottom: 1.5rem;">📋</div>
+          <h3 style="margin-bottom: 0.75rem; transition: var(--transition-fast);">My Registrations</h3>
+          <p>View and manage your event registrations</p>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,262 @@
+{% extends "base_department.html" %}
+
+{% block title %}Department Dashboard{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50">
+  <!-- Header -->
+  <div class="bg-white border-b border-gray-200 py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto">
+      <h1 class="text-3xl sm:text-4xl font-light mb-2 tracking-tight text-gray-900">Dashboard</h1>
+      <p class="text-base sm:text-lg text-gray-600">{{ session.get('department_name', 'Department') }} Overview</p>
+    </div>
+  </div>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8">
+      <!-- Total Events -->
+      <div class="bg-white rounded-xl sm:rounded-2xl p-6 shadow-sm border border-gray-100">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600">Total Events</p>
+            <p class="text-3xl font-light text-gray-900 mt-2">{{ stats.total_events }}</p>
+          </div>
+          <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Active Events -->
+      <div class="bg-white rounded-xl sm:rounded-2xl p-6 shadow-sm border border-gray-100">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600">Active Events</p>
+            <p class="text-3xl font-light text-gray-900 mt-2">{{ stats.active_events }}</p>
+          </div>
+          <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Completed Events -->
+      <div class="bg-white rounded-xl sm:rounded-2xl p-6 shadow-sm border border-gray-100">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600">Completed Events</p>
+            <p class="text-3xl font-light text-gray-900 mt-2">{{ stats.completed_events }}</p>
+          </div>
+          <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pending Requests -->
+      <div class="bg-white rounded-xl sm:rounded-2xl p-6 shadow-sm border border-gray-100">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600">Pending Requests</p>
+            <p class="text-3xl font-light text-gray-900 mt-2">{{ stats.pending_requests }}</p>
+          </div>
+          <div class="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center">
+            <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Total Registrations -->
+      <div class="bg-white rounded-xl sm:rounded-2xl p-6 shadow-sm border border-gray-100">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600">Total Registrations</p>
+            <p class="text-3xl font-light text-gray-900 mt-2">{{ stats.total_registrations }}</p>
+          </div>
+          <div class="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center">
+            <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pending Registrations -->
+      <div class="bg-white rounded-xl sm:rounded-2xl p-6 shadow-sm border border-gray-100">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600">Pending Registrations</p>
+            <p class="text-3xl font-light text-gray-900 mt-2">{{ stats.pending_registrations }}</p>
+          </div>
+          <div class="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
+            <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- KPI Section -->
+    <div class="mb-8">
+      <h2 class="text-2xl font-light text-gray-900 mb-6">Key Performance Indicators</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        <!-- Event Success Rate -->
+        <div class="bg-white rounded-xl sm:rounded-2xl p-6 shadow-sm border border-gray-100 relative group">
+          <div class="flex items-center justify-between mb-2">
+            <p class="text-sm font-medium text-gray-600 flex items-center gap-2">
+              Event Success Rate
+              <span class="text-gray-400 cursor-help">ℹ️</span>
+            </p>
+          </div>
+          <p class="text-3xl font-light text-gray-900">{{ kpi.event_success_rate }}%</p>
+          <p class="text-xs text-gray-500 mt-2">{{ kpi.completed_events }} of {{ kpi.total_events_for_success }} events completed</p>
+          
+          <!-- Tooltip -->
+          <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none w-64 z-10">
+            <p class="font-semibold mb-1">Event Success Rate</p>
+            <p>Percentage of events that were completed successfully without cancellation.</p>
+            <p class="mt-1 text-gray-300">Formula: (Completed Events / Total Events) × 100</p>
+          </div>
+        </div>
+
+        <!-- Attendance Rate -->
+        <div class="bg-white rounded-xl sm:rounded-2xl p-6 shadow-sm border border-gray-100 relative group">
+          <div class="flex items-center justify-between mb-2">
+            <p class="text-sm font-medium text-gray-600 flex items-center gap-2">
+              Attendance Rate
+              <span class="text-gray-400 cursor-help">ℹ️</span>
+            </p>
+          </div>
+          <p class="text-3xl font-light text-gray-900">{{ kpi.attendance_rate }}%</p>
+          <p class="text-xs text-gray-500 mt-2">{{ kpi.total_attended }} of {{ kpi.total_approved }} attended</p>
+          
+          <!-- Tooltip -->
+          <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none w-64 z-10">
+            <p class="font-semibold mb-1">Attendance Rate</p>
+            <p>Percentage of approved registrants who actually attended the events.</p>
+            <p class="mt-1 text-gray-300">Formula: (Attended / Approved Registrations) × 100</p>
+          </div>
+        </div>
+
+        <!-- Feedback Score -->
+        <div class="bg-white rounded-xl sm:rounded-2xl p-6 shadow-sm border border-gray-100 relative group">
+          <div class="flex items-center justify-between mb-2">
+            <p class="text-sm font-medium text-gray-600 flex items-center gap-2">
+              Feedback Score
+              <span class="text-gray-400 cursor-help">ℹ️</span>
+            </p>
+          </div>
+          <p class="text-3xl font-light text-gray-900">{{ kpi.feedback_score }}/5.0</p>
+          <p class="text-xs text-gray-500 mt-2">Based on {{ kpi.total_feedback }} feedback responses</p>
+          
+          <!-- Tooltip -->
+          <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none w-64 z-10">
+            <p class="font-semibold mb-1">Feedback Score</p>
+            <p>Average rating from student feedback submissions (1-5 stars).</p>
+            <p class="mt-1 text-gray-300">Formula: Sum of all ratings / Total feedback count</p>
+          </div>
+        </div>
+
+        <!-- Unique Participants -->
+        <div class="bg-white rounded-xl sm:rounded-2xl p-6 shadow-sm border border-gray-100 relative group">
+          <div class="flex items-center justify-between mb-2">
+            <p class="text-sm font-medium text-gray-600 flex items-center gap-2">
+              Unique Participants
+              <span class="text-gray-400 cursor-help">ℹ️</span>
+            </p>
+          </div>
+          <p class="text-3xl font-light text-gray-900">{{ kpi.unique_participants }}</p>
+          <p class="text-xs text-gray-500 mt-2">Distinct students who attended</p>
+          
+          <!-- Tooltip -->
+          <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none w-64 z-10">
+            <p class="font-semibold mb-1">Unique Participants</p>
+            <p>Number of distinct students who have attended at least one event.</p>
+            <p class="mt-1 text-gray-300">Counts each student only once regardless of how many events they attended.</p>
+          </div>
+        </div>
+
+        <!-- Registration Approval Rate -->
+        <div class="bg-white rounded-xl sm:rounded-2xl p-6 shadow-sm border border-gray-100 relative group">
+          <div class="flex items-center justify-between mb-2">
+            <p class="text-sm font-medium text-gray-600 flex items-center gap-2">
+              Registration Approval Rate
+              <span class="text-gray-400 cursor-help">ℹ️</span>
+            </p>
+          </div>
+          <p class="text-3xl font-light text-gray-900">{{ kpi.registration_approval_rate }}%</p>
+          <p class="text-xs text-gray-500 mt-2">{{ kpi.approved_registrations }} of {{ kpi.total_registrations }} approved</p>
+          
+          <!-- Tooltip -->
+          <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none w-64 z-10">
+            <p class="font-semibold mb-1">Registration Approval Rate</p>
+            <p>Percentage of registrations that were approved by the department.</p>
+            <p class="mt-1 text-gray-300">Formula: (Approved Registrations / Total Registrations) × 100</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Events & Pending Requests -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- Recent Events -->
+      <div class="bg-white rounded-xl sm:rounded-2xl p-6 shadow-sm border border-gray-100">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Recent Events</h3>
+        {% if recent_events %}
+        <div class="space-y-3">
+          {% for event in recent_events %}
+          <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+            <div class="flex-1">
+              <p class="font-medium text-gray-900">{{ event.event_name }}</p>
+              <p class="text-sm text-gray-600">{{ event.event_date }}</p>
+            </div>
+            <span class="px-3 py-1 rounded-full text-xs font-semibold
+              {% if event.status == 'Active' %}bg-green-100 text-green-800
+              {% elif event.status == 'Ongoing' %}bg-blue-100 text-blue-800
+              {% elif event.status == 'Completed' %}bg-purple-100 text-purple-800
+              {% else %}bg-gray-100 text-gray-800{% endif %}">
+              {{ event.status }}
+            </span>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-gray-500 text-center py-8">No events yet</p>
+        {% endif %}
+      </div>
+
+      <!-- Pending Requests -->
+      <div class="bg-white rounded-xl sm:rounded-2xl p-6 shadow-sm border border-gray-100">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Pending Requests</h3>
+        {% if pending_requests %}
+        <div class="space-y-3">
+          {% for request in pending_requests %}
+          <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+            <div class="flex-1">
+              <p class="font-medium text-gray-900">{{ request.event_name }}</p>
+              <p class="text-sm text-gray-600">{{ request.event_date }}</p>
+            </div>
+            <span class="px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800">
+              Pending
+            </span>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-gray-500 text-center py-8">No pending requests</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

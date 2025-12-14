@@ -1,0 +1,112 @@
+{% extends "base_department.html" %}
+
+{% block title %}Manage Requirements - {{ event.event_name }}{% endblock %}
+
+{% block content %}
+<!-- Premium Header -->
+<div class="bg-white border-b border-gray-200 py-8 sm:py-12 lg:py-16 px-4 sm:px-6 lg:px-8 mb-8 sm:mb-12">
+  <div class="max-w-7xl mx-auto">
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div>
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-light mb-2 sm:mb-4 tracking-tight text-gray-900">Manage Requirements</h1>
+        <p class="text-base sm:text-lg lg:text-xl text-gray-600">{{ event.event_name }}</p>
+      </div>
+      <a href="{{ url_for('department_event_management.view_department_events') }}" 
+         class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 sm:px-5 sm:py-3 rounded-lg sm:rounded-xl transition-all duration-300 text-sm sm:text-base font-semibold">
+        Back
+      </a>
+    </div>
+  </div>
+</div>
+
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-8 sm:pb-12 lg:pb-16">
+  <!-- Info Message -->
+  <div class="bg-blue-50 border border-blue-200 rounded-xl sm:rounded-2xl p-4 sm:p-6 mb-6 sm:mb-8">
+    <div class="flex items-start gap-3 sm:gap-4">
+      <div class="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-lg sm:rounded-xl flex items-center justify-center shrink-0">
+        <svg class="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+        </svg>
+      </div>
+      <div>
+        <h3 class="text-base sm:text-lg font-semibold text-blue-900 mb-1">Requirements are Locked</h3>
+        <p class="text-xs sm:text-sm text-blue-700">Requirements were set when the event was requested and cannot be modified after approval. This ensures consistency for all registered students.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Requirements List -->
+  <div class="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 shadow-sm border border-gray-100">
+    <h2 class="text-lg sm:text-xl lg:text-2xl font-semibold text-gray-900 mb-4 sm:mb-6">Current Requirements ({{ requirements|length }})</h2>
+    
+    {% if requirements %}
+    <div class="space-y-3 sm:space-y-4" id="requirements-list">
+      {% for req in requirements %}
+      <div class="bg-gray-50 rounded-xl p-4 sm:p-6 border border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4" data-id="{{ req.id }}">
+        <div class="flex-1">
+          <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-1">{{ req.requirement_name }}</h3>
+          {% if req.description %}
+          <p class="text-sm sm:text-base text-gray-600">{{ req.description }}</p>
+          {% endif %}
+        </div>
+
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-12">
+      <svg class="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 mx-auto mb-4 sm:mb-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+      </svg>
+      <p class="text-base sm:text-lg text-gray-500">No requirements set for this event yet.</p>
+      <p class="text-sm text-gray-400 mt-2">Add requirements above to track student submissions.</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+const eventId = '{{ event.id }}';
+
+function addRequirement() {
+  const name = document.getElementById('requirement-name').value.trim();
+  const description = document.getElementById('requirement-description').value.trim();
+  
+  if (!name) {
+    showAlertModal('Please enter a requirement name', 'yellow');
+    return;
+  }
+  
+  fetch('{{ url_for("requirements.add_requirement") }}', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      event_id: eventId,
+      requirement_name: name,
+      description: description
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      location.reload();
+    } else {
+      showAlertModal('Error: ' + data.message, 'red');
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    showAlertModal('Failed to add requirement', 'red');
+  });
+}
+
+function deleteRequirement(requirementId) {
+  showConfirmModal('Are you sure you want to delete this requirement?', 
+    `{{ url_for("requirements.delete_requirement") }}?requirement_id=${requirementId}`, 
+    'red', 
+    'DELETE'
+  );
+}
+</script>
+
+{% endblock %}

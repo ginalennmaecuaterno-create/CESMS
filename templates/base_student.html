@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Student Portal - CESMS{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/student-luxury.css') }}">
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/lspu-logo.png') }}" style="border-radius: 50%;">
+  <style>
+
+  </style>
+</head>
+<body>
+  
+  <!-- Sidebar - Desktop Only -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <img src="{{ url_for('static', filename='images/lspu-logo.png') }}" alt="LSPU Logo">
+      <h1>CESMS</h1>
+    </div>
+    
+    <nav>
+      <div class="nav-section">
+        <div class="nav-section-title">Events</div>
+        <a href="{{ url_for('student.view_events') }}" class="nav-item">Browse Events</a>
+        <a href="{{ url_for('student.view_registrations') }}" class="nav-item">My Registrations</a>
+        <a href="{{ url_for('student.view_event_history') }}" class="nav-item">Event History</a>
+      </div>
+      
+      <div class="nav-section">
+        <a href="javascript:void(0)" class="nav-item" onclick="showConfirmModal('Logout', 'Are you sure you want to logout?', function() { window.location.href = '{{ url_for('user.logout') }}'; }, 'warning')">Logout</a>
+      </div>
+    </nav>
+  </aside>
+
+  <!-- Bottom Navigation - Mobile Only -->
+  <nav class="bottom-nav">
+    <a href="{{ url_for('student.view_events') }}" class="bottom-nav-item">
+      <svg class="bottom-nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+      </svg>
+      <span class="bottom-nav-label">Events</span>
+    </a>
+    <a href="{{ url_for('student.view_registrations') }}" class="bottom-nav-item">
+      <svg class="bottom-nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+      </svg>
+      <span class="bottom-nav-label">My Tickets</span>
+    </a>
+    <a href="{{ url_for('student.view_event_history') }}" class="bottom-nav-item">
+      <svg class="bottom-nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+      <span class="bottom-nav-label">History</span>
+    </a>
+  </nav>
+
+
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="top-bar">
+      <div class="top-bar-left">
+        <img src="{{ url_for('static', filename='images/lspu-logo.png') }}" alt="LSPU Logo" class="top-bar-logo">
+        <span class="top-bar-title">CESMS</span>
+      </div>
+      
+      <div class="top-bar-right">
+        <button class="profile-icon-button" onclick="showProfileModal()">
+          <div class="profile-icon-avatar">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+            </svg>
+          </div>
+        </button>
+      </div>
+    </div>
+    
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Confirmation Modal -->
+  <div id="confirmModal" class="modal-overlay" style="display: none;">
+    <div class="modal">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+          <div id="modalIcon" style="width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: var(--color-info-bg);">
+            <svg style="width: 24px; height: 24px; color: var(--color-info);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+            </svg>
+          </div>
+          <h3 id="modalTitle" class="modal-title">Confirm Action</h3>
+        </div>
+      </div>
+      <div class="modal-body">
+        <p id="modalMessage" style="color: var(--color-text-secondary); font-size: 1rem;">Are you sure you want to proceed?</p>
+      </div>
+      <div class="modal-footer">
+        <button onclick="closeModal()" class="btn btn-ghost">Cancel</button>
+        <button id="modalConfirmBtn" class="btn btn-primary">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Profile Modal -->
+  <div id="profileModal" class="modal-overlay" style="display: none;">
+    <div class="modal" style="max-width: 400px;">
+      <div class="modal-body" style="padding: 2rem; text-align: center;">
+        <div style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-dark) 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 2rem; margin: 0 auto 1.5rem; box-shadow: var(--shadow-neu-2);">
+          {{ session.get('user_name', 'Student')[0].upper() }}
+        </div>
+        
+        <h3 style="font-size: 1.5rem; font-weight: 700; color: var(--color-text-primary); margin-bottom: 0.5rem;">{{ session.get('user_name', 'Student') }}</h3>
+        
+        <div style="background: var(--color-bg-secondary); border-radius: var(--radius-md); padding: 1.25rem; margin-bottom: 1.5rem; text-align: left; box-shadow: var(--shadow-neu-inset);">
+          <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+            <svg style="width: 20px; height: 20px; color: var(--color-accent); flex-shrink: 0;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+            </svg>
+            <div style="flex: 1; min-width: 0;">
+              <div style="font-size: 0.75rem; color: var(--color-text-tertiary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem;">Email</div>
+              <div style="font-size: 0.75rem; color: var(--color-text-primary); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ session.get('user_email', '') }}</div>
+            </div>
+          </div>
+          
+          <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <svg style="width: 20px; height: 20px; color: var(--color-accent); flex-shrink: 0;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/>
+            </svg>
+            <div style="flex: 1; min-width: 0;">
+              <div style="font-size: 0.75rem; color: var(--color-text-tertiary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem;">Student ID</div>
+              <div style="font-size: 0.75rem; color: var(--color-text-primary); font-weight: 500;">{{ session.get('student_id', 'N/A') }}</div>
+            </div>
+          </div>
+        </div>
+        
+        <div style="display: flex; gap: 0.75rem;">
+          <button onclick="closeProfileModal()" class="btn btn-ghost" style="flex: 1;">Close</button>
+          <button onclick="closeProfileModal(); showConfirmModal('Logout', 'Are you sure you want to logout?', function() { window.location.href = '{{ url_for('user.logout') }}'; }, 'warning');" class="btn btn-primary" style="flex: 1;">
+            <svg style="width: 18px; height: 18px; margin-right: 0.5rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+            </svg>
+            Logout
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Confirmation Modal Functions
+    function showConfirmModal(title, message, onConfirm, type = 'warning') {
+      const modal = document.getElementById('confirmModal');
+      const modalTitle = document.getElementById('modalTitle');
+      const modalMessage = document.getElementById('modalMessage');
+      const modalIcon = document.getElementById('modalIcon');
+      const confirmBtn = document.getElementById('modalConfirmBtn');
+      
+      modalTitle.textContent = title;
+      modalMessage.textContent = message;
+      
+      if (type === 'danger') {
+        modalIcon.style.background = 'var(--color-error-bg)';
+        modalIcon.innerHTML = '<svg style="width: 24px; height: 24px; color: var(--color-error);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>';
+        confirmBtn.className = 'btn btn-primary';
+        confirmBtn.style.background = 'linear-gradient(135deg, var(--color-error) 0%, #B85555 100%)';
+      } else if (type === 'success') {
+        modalIcon.style.background = 'var(--color-success-bg)';
+        modalIcon.innerHTML = '<svg style="width: 24px; height: 24px; color: var(--color-success);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>';
+        confirmBtn.className = 'btn btn-primary';
+        confirmBtn.style.background = 'linear-gradient(135deg, var(--color-success) 0%, #5F9050 100%)';
+      } else {
+        modalIcon.style.background = 'var(--color-info-bg)';
+        modalIcon.innerHTML = '<svg style="width: 24px; height: 24px; color: var(--color-info);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>';
+        confirmBtn.className = 'btn btn-primary';
+        confirmBtn.style.background = '';
+      }
+      
+      confirmBtn.onclick = function() {
+        closeModal();
+        if (onConfirm) onConfirm();
+      };
+      
+      modal.style.display = 'flex';
+      setTimeout(() => modal.classList.add('show'), 50);
+    }
+    
+    function closeModal() {
+      const modal = document.getElementById('confirmModal');
+      modal.style.display = 'none';
+      modal.classList.remove('show');
+    }
+    
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeModal();
+    });
+    
+    document.getElementById('confirmModal').addEventListener('click', function(e) {
+      if (e.target === this) closeModal();
+    });
+    
+
+    
+    // Set active nav item based on current URL
+    document.addEventListener('DOMContentLoaded', function() {
+      const currentPath = window.location.pathname;
+      
+      // Desktop sidebar
+      const navItems = document.querySelectorAll('.nav-item');
+      navItems.forEach(item => {
+        const href = item.getAttribute('href');
+        if (href && href !== 'javascript:void(0)' && currentPath.includes(href)) {
+          item.classList.add('active');
+        }
+      });
+      
+      // Mobile bottom nav
+      const bottomNavItems = document.querySelectorAll('.bottom-nav-item');
+      bottomNavItems.forEach(item => {
+        const href = item.getAttribute('href');
+        if (href && href !== 'javascript:void(0)' && currentPath.includes(href)) {
+          item.classList.add('active');
+        }
+      });
+    });
+    
+    // Profile Modal Functions
+    function showProfileModal() {
+      const modal = document.getElementById('profileModal');
+      modal.style.display = 'flex';
+      setTimeout(function() { modal.classList.add('show'); }, 50);
+    }
+    
+    function closeProfileModal() {
+      const modal = document.getElementById('profileModal');
+      modal.classList.remove('show');
+      setTimeout(function() { modal.style.display = 'none'; }, 300);
+    }
+    
+    // Close profile modal on backdrop click
+    document.getElementById('profileModal').addEventListener('click', function(e) {
+      if (e.target === this) closeProfileModal();
+    });
+  </script>
+
+</body>
+</html>

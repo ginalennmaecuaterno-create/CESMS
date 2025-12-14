@@ -22,18 +22,39 @@ def view_event_requests():
         return redirect(url_for("home"))
     
     try:
-        # Get all pending requests
-        requests_response = EventRequestManagement.get_all_pending_requests()
+        # Get filter from query parameters
+        status_filter = request.args.get("status", "pending")
+        
+        # Get requests based on filter
+        if status_filter == "all":
+            requests_response = EventRequestManagement.get_all_requests()
+        elif status_filter == "pending":
+            requests_response = EventRequestManagement.get_all_pending_requests()
+        elif status_filter == "approved":
+            requests_response = EventRequestManagement.get_requests_by_status("Approved")
+        elif status_filter == "rejected":
+            requests_response = EventRequestManagement.get_requests_by_status("Rejected")
+        elif status_filter == "cancelled":
+            requests_response = EventRequestManagement.get_requests_by_status("Cancelled")
+        else:
+            requests_response = EventRequestManagement.get_all_pending_requests()
+            status_filter = "pending"
+        
         requests = requests_response.data if requests_response.data else []
         
         # Get request counts
         counts = EventRequestManagement.get_request_counts_by_status()
         
+        # Get conflicts for pending requests
+        conflicts_map = EventRequestManagement.get_conflicts_for_requests(requests)
+        
         return render_template(
             "osas_event_request_management.html",
             user=user,
             requests=requests,
-            counts=counts
+            counts=counts,
+            status_filter=status_filter,
+            conflicts_map=conflicts_map
         )
         
     except Exception as e:
@@ -42,7 +63,8 @@ def view_event_requests():
             "osas_event_request_management.html",
             user=user,
             requests=[],
-            counts={"Pending": 0, "Approved": 0, "Rejected": 0, "Cancelled": 0}
+            counts={"Pending": 0, "Approved": 0, "Rejected": 0, "Cancelled": 0},
+            status_filter="pending"
         )
 
 

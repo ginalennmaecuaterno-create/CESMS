@@ -1,0 +1,395 @@
+{% extends "base_osas.html" %}
+
+{% block title %}Dashboard - OSAS{% endblock %}
+
+{% block content %}
+<!-- Ultra Premium Apple-style Dashboard -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
+  
+  <!-- Welcome Header -->
+  <div class="mb-12">
+    <h1 class="text-5xl font-bold text-gray-900 tracking-tight mb-2 bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
+      {{ user.full_name }} Department
+    </h1>
+    <p class="text-lg text-gray-500">Here's what's happening with your events today</p>
+  </div>
+
+  <!-- KPI Metrics -->
+  <div class="mb-8 sm:mb-12">
+    <h2 class="text-xl sm:text-2xl font-semibold text-gray-900 mb-4 sm:mb-6">Key Performance Indicators</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
+      <!-- Event Success Rate -->
+      <div class="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-gray-200 hover:shadow-lg transition-all duration-300 relative group cursor-help">
+        <div class="flex items-center justify-between mb-3 sm:mb-4">
+          <div>
+            <p class="text-xs sm:text-sm text-gray-600 mb-1 flex items-center gap-1">
+              Event Success Rate
+              <svg class="w-3 h-3 sm:w-4 sm:h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+              </svg>
+            </p>
+            <p class="text-2xl sm:text-3xl font-bold text-gray-900">{{ kpi.event_success_rate }}%</p>
+          </div>
+          <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-green-100 to-green-200 flex items-center justify-center shrink-0">
+            <svg class="w-6 h-6 sm:w-8 sm:h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+        </div>
+        <div class="w-full bg-gray-200 rounded-full h-2">
+          <div class="bg-green-600 h-2 rounded-full transition-all duration-500" style="width: {{ kpi.event_success_rate }}%"></div>
+        </div>
+        <p class="text-xs text-gray-500 mt-2">{{ kpi.completed_events }} of {{ kpi.total_events_for_success }} events completed</p>
+        
+        <!-- Tooltip -->
+        <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 w-64 text-center z-10">
+          <div class="font-semibold mb-1">Event Success Rate</div>
+          <div class="text-gray-300">Percentage of events that were successfully completed without cancellation. Calculated as: (Completed Events / Total Non-Cancelled Events) × 100</div>
+          <div class="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-gray-900"></div>
+        </div>
+      </div>
+
+      <!-- Attendance Rate -->
+      <div class="bg-white rounded-2xl p-6 border border-gray-200 hover:shadow-lg transition-all duration-300 relative group cursor-help">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <p class="text-sm text-gray-600 mb-1 flex items-center gap-1">
+              Attendance Rate
+              <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+              </svg>
+            </p>
+            <p class="text-3xl font-bold text-gray-900">{{ kpi.attendance_rate }}%</p>
+          </div>
+          <div class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center">
+            <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+            </svg>
+          </div>
+        </div>
+        <div class="w-full bg-gray-200 rounded-full h-2">
+          <div class="bg-blue-600 h-2 rounded-full transition-all duration-500" style="width: {{ kpi.attendance_rate }}%"></div>
+        </div>
+        <p class="text-xs text-gray-500 mt-2">{{ kpi.total_attended }} of {{ kpi.total_approved }} attended</p>
+        
+        <!-- Tooltip -->
+        <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 w-64 text-center z-10">
+          <div class="font-semibold mb-1">Attendance Rate</div>
+          <div class="text-gray-300">Percentage of approved registrants who actually attended the events. Calculated as: (Students Who Attended / Total Approved Registrations) × 100</div>
+          <div class="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-gray-900"></div>
+        </div>
+      </div>
+
+      <!-- Event Feedback Score -->
+      <div class="bg-white rounded-2xl p-6 border border-gray-200 hover:shadow-lg transition-all duration-300 relative group cursor-help">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <p class="text-sm text-gray-600 mb-1 flex items-center gap-1">
+              Feedback Score
+              <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+              </svg>
+            </p>
+            <p class="text-3xl font-bold text-gray-900">{{ kpi.feedback_score }}/5.0</p>
+          </div>
+          <div class="w-16 h-16 rounded-full bg-gradient-to-br from-yellow-100 to-yellow-200 flex items-center justify-center">
+            <svg class="w-8 h-8 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+            </svg>
+          </div>
+        </div>
+        <div class="flex gap-1 mb-2">
+          {% for i in range(5) %}
+          <svg class="w-5 h-5 {% if i < kpi.feedback_score|round %}text-yellow-400{% else %}text-gray-300{% endif %}" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+          </svg>
+          {% endfor %}
+        </div>
+        <p class="text-xs text-gray-500">Based on {{ kpi.total_feedback }} feedback responses</p>
+        
+        <!-- Tooltip -->
+        <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 w-64 text-center z-10">
+          <div class="font-semibold mb-1">Feedback Score</div>
+          <div class="text-gray-300">Average rating from student feedback across all events. Calculated as the mean of all feedback ratings on a scale of 1-5 stars.</div>
+          <div class="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-gray-900"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <!-- Request Approval Time -->
+      <div class="bg-white rounded-2xl p-6 border border-gray-200 hover:shadow-lg transition-all duration-300 relative group cursor-help">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <p class="text-sm text-gray-600 mb-1 flex items-center gap-1">
+              Avg. Approval Time
+              <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+              </svg>
+            </p>
+            <p class="text-3xl font-bold text-gray-900">{{ kpi.avg_approval_time }}</p>
+          </div>
+          <div class="w-16 h-16 rounded-full bg-gradient-to-br from-purple-100 to-purple-200 flex items-center justify-center">
+            <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+        </div>
+        <p class="text-xs text-gray-500">{{ kpi.processed_requests }} requests processed</p>
+        
+        <!-- Tooltip -->
+        <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 w-64 text-center z-10">
+          <div class="font-semibold mb-1">Average Approval Time</div>
+          <div class="text-gray-300">Average time taken to approve or reject event requests from departments. Measures OSAS response efficiency in processing event proposals.</div>
+          <div class="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-gray-900"></div>
+        </div>
+      </div>
+
+      <!-- Student Participation -->
+      <div class="bg-white rounded-2xl p-6 border border-gray-200 hover:shadow-lg transition-all duration-300 relative group cursor-help">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <p class="text-sm text-gray-600 mb-1 flex items-center gap-1">
+              Unique Participants
+              <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+              </svg>
+            </p>
+            <p class="text-3xl font-bold text-gray-900">{{ kpi.unique_participants }}</p>
+          </div>
+          <div class="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-100 to-indigo-200 flex items-center justify-center">
+            <svg class="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+            </svg>
+          </div>
+        </div>
+        <p class="text-xs text-gray-500">Students who attended events</p>
+        
+        <!-- Tooltip -->
+        <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 w-64 text-center z-10">
+          <div class="font-semibold mb-1">Unique Participants</div>
+          <div class="text-gray-300">Total number of distinct students who have attended at least one event. Counts each student only once regardless of how many events they attended.</div>
+          <div class="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-gray-900"></div>
+        </div>
+      </div>
+
+      <!-- Registration Completion Rate -->
+      <div class="bg-white rounded-2xl p-6 border border-gray-200 hover:shadow-lg transition-all duration-300 relative group cursor-help">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <p class="text-sm text-gray-600 mb-1 flex items-center gap-1">
+              Registration Rate
+              <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+              </svg>
+            </p>
+            <p class="text-3xl font-bold text-gray-900">{{ kpi.registration_completion_rate }}%</p>
+          </div>
+          <div class="w-16 h-16 rounded-full bg-gradient-to-br from-teal-100 to-teal-200 flex items-center justify-center">
+            <svg class="w-8 h-8 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+            </svg>
+          </div>
+        </div>
+        <div class="w-full bg-gray-200 rounded-full h-2">
+          <div class="bg-teal-600 h-2 rounded-full transition-all duration-500" style="width: {{ kpi.registration_completion_rate }}%"></div>
+        </div>
+        <p class="text-xs text-gray-500 mt-2">{{ kpi.approved_registrations }} of {{ kpi.total_registrations }} approved</p>
+        
+        <!-- Tooltip -->
+        <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 w-64 text-center z-10">
+          <div class="font-semibold mb-1">Registration Completion Rate</div>
+          <div class="text-gray-300">Percentage of event registrations that were approved. Calculated as: (Approved Registrations / Total Registrations) × 100. Indicates registration approval efficiency.</div>
+          <div class="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-gray-900"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Statistics Grid -->
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 mb-8 sm:mb-12">
+    <!-- Total Events -->
+    <div class="bg-gradient-to-br from-blue-50 to-blue-100/50 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-blue-200/50 hover:shadow-lg hover:scale-105 transition-all duration-300">
+      <div class="flex items-center justify-between mb-3 sm:mb-4">
+        <div>
+          <div class="text-xs sm:text-sm font-medium text-blue-600 mb-1">Total Events</div>
+          <div class="text-2xl sm:text-3xl lg:text-4xl font-bold text-blue-700">{{ stats.total_events }}</div>
+        </div>
+        <div class="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 bg-blue-600 rounded-xl sm:rounded-2xl flex items-center justify-center shrink-0">
+          <svg class="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+          </svg>
+        </div>
+      </div>
+      <p class="text-xs sm:text-sm text-blue-600">Active: {{ stats.active_events }}</p>
+    </div>
+
+    <!-- Pending Requests -->
+    <div class="bg-gradient-to-br from-yellow-50 to-yellow-100/50 rounded-2xl p-6 border border-yellow-200/50 hover:shadow-lg hover:scale-105 transition-all duration-300">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <div class="text-sm font-medium text-yellow-600 mb-1">Pending Requests</div>
+          <div class="text-4xl font-bold text-yellow-700">{{ stats.pending_requests }}</div>
+        </div>
+        <div class="w-14 h-14 bg-yellow-600 rounded-2xl flex items-center justify-center">
+          <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        </div>
+      </div>
+      <p class="text-sm text-yellow-600">Needs review</p>
+    </div>
+
+    <!-- Total Registrations -->
+    <div class="bg-gradient-to-br from-green-50 to-green-100/50 rounded-2xl p-6 border border-green-200/50 hover:shadow-lg hover:scale-105 transition-all duration-300">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <div class="text-sm font-medium text-green-600 mb-1">Registrations</div>
+          <div class="text-4xl font-bold text-green-700">{{ stats.total_registrations }}</div>
+        </div>
+        <div class="w-14 h-14 bg-green-600 rounded-2xl flex items-center justify-center">
+          <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+          </svg>
+        </div>
+      </div>
+      <p class="text-sm text-green-600">Pending: {{ stats.pending_registrations }}</p>
+    </div>
+
+    <!-- Completed Events -->
+    <div class="bg-gradient-to-br from-purple-50 to-purple-100/50 rounded-2xl p-6 border border-purple-200/50 hover:shadow-lg hover:scale-105 transition-all duration-300">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <div class="text-sm font-medium text-purple-600 mb-1">Completed</div>
+          <div class="text-4xl font-bold text-purple-700">{{ stats.completed_events }}</div>
+        </div>
+        <div class="w-14 h-14 bg-purple-600 rounded-2xl flex items-center justify-center">
+          <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        </div>
+      </div>
+      <p class="text-sm text-purple-600">This month</p>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="mb-12">
+    <h2 class="text-2xl font-semibold text-gray-900 mb-6">Shortcut</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <a href="{{ url_for('osas_create_event.create_osas_event') }}" 
+         class="group bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-gray-200 hover:border-blue-300 hover:shadow-xl transition-all duration-300">
+        <div class="flex items-center gap-3 sm:gap-4">
+          <div class="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-lg sm:rounded-xl flex items-center justify-center group-hover:bg-blue-600 transition-colors shrink-0">
+            <svg class="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+          </div>
+          <div class="min-w-0">
+            <h3 class="text-sm sm:text-base font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">Create Event</h3>
+            <p class="text-xs sm:text-sm text-gray-500">Add a new OSAS event</p>
+          </div>
+        </div>
+      </a>
+
+      <a href="{{ url_for('event_request_management.view_event_requests') }}" 
+         class="group bg-white rounded-2xl p-6 border border-gray-200 hover:border-yellow-300 hover:shadow-xl transition-all duration-300">
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center group-hover:bg-yellow-600 transition-colors">
+            <svg class="w-6 h-6 text-yellow-600 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+            </svg>
+          </div>
+          <div>
+            <h3 class="font-semibold text-gray-900 group-hover:text-yellow-600 transition-colors">Review Requests</h3>
+            <p class="text-sm text-gray-500">{{ stats.pending_requests }} pending</p>
+          </div>
+        </div>
+      </a>
+
+      <a href="{{ url_for('osas_event_management.view_all_events') }}" 
+         class="group bg-white rounded-2xl p-6 border border-gray-200 hover:border-green-300 hover:shadow-xl transition-all duration-300">
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center group-hover:bg-green-600 transition-colors">
+            <svg class="w-6 h-6 text-green-600 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+          </div>
+          <div>
+            <h3 class="font-semibold text-gray-900 group-hover:text-green-600 transition-colors">Manage Events</h3>
+            <p class="text-sm text-gray-500">View all events</p>
+          </div>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <!-- Recent Events & Pending Requests -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
+    <!-- Recent Events -->
+    <div class="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-gray-200">
+      <div class="flex items-center justify-between mb-4 sm:mb-6">
+        <h2 class="text-lg sm:text-xl font-semibold text-gray-900">Recent Events</h2>
+        <a href="{{ url_for('osas_event_management.view_all_events') }}" class="text-xs sm:text-sm text-blue-600 hover:text-blue-700 font-medium whitespace-nowrap">View all →</a>
+      </div>
+      {% if recent_events %}
+        <div class="space-y-2 sm:space-y-3">
+          {% for event in recent_events[:5] %}
+          <div class="flex items-center justify-between p-3 sm:p-3 bg-gray-50 rounded-lg sm:rounded-xl hover:bg-gray-100 transition-colors gap-2">
+            <div class="flex-1 min-w-0">
+              <p class="text-sm sm:text-base font-medium text-gray-900 truncate">{{ event.event_name }}</p>
+              <p class="text-xs sm:text-sm text-gray-500">{{ event.date }} • {{ event.start_time|time_12hr }}</p>
+            </div>
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium shrink-0
+              {% if event.status == 'Active' %}bg-blue-100 text-blue-700
+              {% elif event.status == 'Completed' %}bg-green-100 text-green-700
+              {% else %}bg-gray-100 text-gray-700{% endif %}">
+              {{ event.status }}
+            </span>
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="text-center py-8 text-gray-500">
+          <svg class="w-16 h-16 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+          </svg>
+          <p>No events yet</p>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Pending Requests -->
+    <div class="bg-white rounded-2xl p-6 border border-gray-200">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-xl font-semibold text-gray-900">Pending Requests</h2>
+        <a href="{{ url_for('event_request_management.view_event_requests') }}" class="text-sm text-blue-600 hover:text-blue-700 font-medium">View all →</a>
+      </div>
+      {% if pending_requests %}
+        <div class="space-y-3">
+          {% for req in pending_requests[:5] %}
+          <div class="flex items-center justify-between p-3 bg-yellow-50 rounded-xl hover:bg-yellow-100 transition-colors">
+            <div class="flex-1 min-w-0">
+              <p class="font-medium text-gray-900 truncate">{{ req.event_name }}</p>
+              <p class="text-sm text-gray-500">{{ req.users.department_name or req.users.full_name }}</p>
+            </div>
+            <a href="{{ url_for('event_request_management.view_event_requests') }}" 
+               class="inline-flex items-center px-3 py-1.5 bg-yellow-600 hover:bg-yellow-700 text-white text-xs font-medium rounded-lg transition-colors">
+              Review
+            </a>
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="text-center py-8 text-gray-500">
+          <svg class="w-16 h-16 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+          </svg>
+          <p>No pending requests</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}

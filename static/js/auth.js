@@ -28,6 +28,13 @@ function initializeAuth() {
 }
 
 /**
+ * Check if current page is signup
+ */
+function isSignupPage() {
+    return document.querySelector('input[name="full_name"]') !== null;
+}
+
+/**
  * Initialize flash message functionality
  */
 function initializeFlashMessages() {
@@ -161,14 +168,14 @@ function validateField(input) {
         errorMessage = 'Please enter a valid email address.';
     }
     
-    // Student ID validation
+    // Student ID validation (only on signup page)
     if (fieldName === 'student_id' && value && !isValidStudentId(value)) {
         isValid = false;
         errorMessage = 'Please enter a valid student ID.';
     }
     
-    // Password validation
-    if (fieldName === 'password' && value) {
+    // Password validation - ONLY enforce strength requirements on signup page
+    if (fieldName === 'password' && value && isSignupPage()) {
         const passwordStrength = calculatePasswordStrength(value);
         updatePasswordStrength(passwordStrength);
         
@@ -176,9 +183,12 @@ function validateField(input) {
             isValid = false;
             errorMessage = 'Password is too weak. Please use a stronger password.';
         }
+    } else if (fieldName === 'password' && value && !isSignupPage()) {
+        // On login page, just check if password is not empty (already handled above)
+        // Don't show strength feedback
     }
     
-    // Confirm password validation
+    // Confirm password validation (only on signup page)
     if (fieldName === 'confirm_password' && value) {
         const passwordInput = document.querySelector('input[name="password"]');
         if (passwordInput && value !== passwordInput.value) {
@@ -214,8 +224,6 @@ function isValidEmail(email) {
     return emailRegex.test(email);
 }
 
-
-
 /**
  * Validate student ID format
  */
@@ -223,7 +231,6 @@ function isValidStudentId(studentId) {
     const studentIdRegex = /^02\d{2}-\d{4}$/;
     return studentIdRegex.test(studentId);
 }
-
 
 /**
  * Show error message
@@ -247,9 +254,12 @@ function removeErrorMessage(input) {
 }
 
 /**
- * Initialize password strength meter
+ * Initialize password strength meter (only on signup page)
  */
 function initializePasswordStrength() {
+    // Only run on signup page
+    if (!isSignupPage()) return;
+    
     const passwordInput = document.querySelector('input[name="password"]');
     if (!passwordInput) return;
     

@@ -6,7 +6,7 @@ class EventManagement:
     def get_all_events():
         """Get all events with department information"""
         events = supabase.table("events").select(
-            "*, users!events_department_id_fkey(full_name, department_name, email)"
+            "*, users!events_department_id_fkey(full_name, department_name, email, role)"
         ).order("date", desc=False).execute()
         return events
 
@@ -14,7 +14,7 @@ class EventManagement:
     def get_active_events():
         """Get only active events"""
         events = supabase.table("events").select(
-            "*, users!events_department_id_fkey(full_name, department_name, email)"
+            "*, users!events_department_id_fkey(full_name, department_name, email, role)"
         ).eq("status", "Active").order("date", desc=False).execute()
         return events
 
@@ -22,7 +22,7 @@ class EventManagement:
     def get_event_by_id(event_id):
         """Get event details"""
         return supabase.table("events").select(
-            "*, users!events_department_id_fkey(full_name, department_name, email)"
+            "*, users!events_department_id_fkey(full_name, department_name, email, role)"
         ).eq("id", event_id).execute()
 
     @staticmethod
@@ -168,7 +168,7 @@ class EventManagement:
     def get_events_by_department(department_id):
         """Get all events for a specific department"""
         events = supabase.table("events").select(
-            "*, users!events_department_id_fkey(full_name, department_name, email)"
+            "*, users!events_department_id_fkey(full_name, department_name, email, role)"
         ).eq("department_id", department_id).order("date", desc=False).execute()
         return events
 
@@ -176,22 +176,106 @@ class EventManagement:
     def get_active_events_by_department(department_id):
         """Get only active events for a specific department"""
         events = supabase.table("events").select(
-            "*, users!events_department_id_fkey(full_name, department_name, email)"
+            "*, users!events_department_id_fkey(full_name, department_name, email, role)"
         ).eq("department_id", department_id).eq("status", "Active").order("date", desc=False).execute()
         return events
 
     @staticmethod
     def get_event_counts_by_status_for_department(department_id):
         """Get count of events grouped by status for a specific department"""
-        department_events = supabase.table("events").select("status").eq("department_id", department_id).execute()
+        department_events = supabase.table("events").select("status, date, start_time, end_time").eq("department_id", department_id).execute()
         
-        counts = {"Active": 0, "Completed": 0, "Cancelled": 0}
+        counts = {"Active": 0, "Ongoing": 0, "Completed": 0, "Cancelled": 0}
+        
         if department_events.data:
             for event in department_events.data:
-                status = event.get("status", "Active")
-                counts[status] = counts.get(status, 0) + 1
+                display_status = EventManagement.get_event_display_status(event)
+                counts[display_status] = counts.get(display_status, 0) + 1
         
         return counts
+    
+    @staticmethod
+    def get_event_display_status(event):
+        """Determine the display status of an event based on its date and time"""
+        status = event.get("status", "Active")
+        event_date_str = event.get("date")
+        start_time_str = event.get("start_time")
+        end_time_str = event.get("end_time")
+        
+        if status == "Active" and event_date_str and start_time_str and end_time_str:
+            now = datetime.now()
+            today = now.date()
+            current_time = now.time()
+            
+            # Parse event date
+            event_date = datetime.strptime(event_date_str, "%Y-%m-%d").date()
+            
+            # Parse event times
+            if isinstance(start_time_str, str):
+                start_time = datetime.strptime(start_time_str, "%H:%M:%S").time()
+            else:
+                start_time = start_time_str
+                
+            if isinstance(end_time_str, str):
+                end_time = datetime.strptime(end_time_str, "%H:%M:%S").time()
+            else:
+                end_time = end_time_str
+            
+            # Check if event is today
+            if event_date == today:
+                # Check if current time is within event time range
+                if start_time <= current_time <= end_time:
+                    return "Ongoing"
+                elif current_time > end_time:
+                    return "Completed"
+                else:
+                    return "Active"  # Event is today but hasn't started yet
+            elif event_date < today:
+                return "Completed"
+        
+        return status
+    
+    @staticmethod
+    def update_event_status_if_needed(event_id, current_display_status):
+        """Update the database status if it differs from the calculated display status"""
+        try:
+            # Only update if the display status is "Completed"
+            if current_display_status == "Completed":
+                # Get current database status
+                event = supabase.table("events").select("status").eq("id", event_id).execute()
+                
+                if event.data and event.data[0]["status"] == "Active":
+                    # Update to Completed
+                    supabase.table("events").update({
+                        "status": "Completed"
+                    }).eq("id", event_id).execute()
+                    return True
+            return False
+        except Exception as e:
+            print(f"Error updating event status: {e}")
+            return False
+    
+    @staticmethod
+    def auto_update_completed_events():
+        """Automatically update all Active events that should be Completed"""
+        try:
+            # Get all Active events
+            active_events = supabase.table("events").select("*").eq("status", "Active").execute()
+            
+            if not active_events.data:
+                return 0
+            
+            updated_count = 0
+            for event in active_events.data:
+                display_status = EventManagement.get_event_display_status(event)
+                if display_status == "Completed":
+                    if EventManagement.update_event_status_if_needed(event["id"], display_status):
+                        updated_count += 1
+            
+            return updated_count
+        except Exception as e:
+            print(f"Error auto-updating events: {e}")
+            return 0
 
     @staticmethod
     def cancel_department_event(event_id, department_id):

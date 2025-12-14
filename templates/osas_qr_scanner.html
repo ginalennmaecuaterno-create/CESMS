@@ -1,0 +1,266 @@
+{% extends "base_osas.html" %}
+
+{% block title %}QR Scanner - OSAS{% endblock %}
+
+{% block content %}
+<!-- Premium Header -->
+<div class="bg-white border-b border-gray-200 py-16 px-8 mb-12">
+  <div class="max-w-7xl mx-auto">
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-5xl font-light mb-4 tracking-tight text-gray-900">QR Code Scanner</h1>
+        <p class="text-xl text-gray-600">{{ event.event_name }}</p>
+      </div>
+      <a href="{{ url_for('osas_event_management.view_event_attendance', event_id=event.id) }}" 
+         class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl transition-all duration-300 shadow-sm">
+        Back to Attendance
+      </a>
+    </div>
+  </div>
+</div>
+
+<div class="max-w-4xl mx-auto px-8 pb-16">
+  <!-- Scanner Container -->
+  <div id="scanner-container" style="display: none;">
+    <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 mb-8">
+      <div id="reader" class="rounded-xl overflow-hidden" style="width: 100%; max-width: 600px; margin: 0 auto;"></div>
+      
+      <div id="scan-result" class="scan-result mt-8 p-6 rounded-xl text-center" style="display: none;">
+        <div id="result-content"></div>
+      </div>
+      
+      <div class="flex gap-4 justify-center mt-8">
+        <button id="start-scan-btn" 
+                onclick="startScanning()"
+                class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/>
+          </svg>
+          Start Scanner
+        </button>
+        <button id="stop-scan-btn" 
+                onclick="stopScanning()" 
+                style="display: none;"
+                class="inline-flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+          Stop Scanner
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<style>
+.scan-result {
+  animation: slideIn 0.3s ease-out;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.scan-result.success {
+  background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+  border: 3px solid #28a745;
+  color: #155724;
+}
+
+.scan-result.error {
+  background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+  border: 3px solid #dc3545;
+  color: #721c24;
+}
+
+.scan-result.warning {
+  background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+  border: 3px solid #ffc107;
+  color: #856404;
+}
+
+.scan-result h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+}
+
+.student-info {
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 12px;
+  text-align: left;
+}
+
+.student-info p {
+  font-size: 1.1rem;
+  margin: 0.75rem 0;
+  line-height: 1.6;
+}
+
+.student-info strong {
+  color: #2563eb;
+  font-weight: 600;
+  display: inline-block;
+  min-width: 120px;
+}
+</style>
+
+<!-- Include HTML5 QR Code Scanner Library -->
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+<script>
+let html5QrcodeScanner = null;
+const selectedEventId = '{{ event.id }}';
+
+// Show scanner immediately
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('scanner-container').style.display = 'block';
+});
+
+function startScanning() {
+  
+  document.getElementById('start-scan-btn').style.display = 'none';
+  document.getElementById('stop-scan-btn').style.display = 'inline-block';
+  
+  html5QrcodeScanner = new Html5Qrcode("reader");
+  
+  html5QrcodeScanner.start(
+    { facingMode: "environment" },
+    {
+      fps: 10,
+      qrbox: { width: 250, height: 250 }
+    },
+    onScanSuccess,
+    onScanError
+  ).catch(err => {
+    console.error('Error starting scanner:', err);
+    alert('Error starting camera. Please check permissions or use manual entry.');
+    stopScanning();
+  });
+}
+
+function stopScanning() {
+  if (html5QrcodeScanner) {
+    html5QrcodeScanner.stop().then(() => {
+      html5QrcodeScanner = null;
+      document.getElementById('start-scan-btn').style.display = 'inline-block';
+      document.getElementById('stop-scan-btn').style.display = 'none';
+    }).catch(err => {
+      console.error('Error stopping scanner:', err);
+    });
+  }
+}
+
+function onScanSuccess(decodedText, decodedResult) {
+  // Stop scanning temporarily
+  stopScanning();
+  
+  // Verify the QR code
+  verifyQRCode(decodedText);
+}
+
+function onScanError(errorMessage) {
+  // Ignore scan errors (they happen frequently)
+}
+
+function verifyQRCode(uniqueCode) {
+  fetch('{{ url_for("attendance.verify_qr") }}', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      unique_code: uniqueCode,
+      event_id: selectedEventId
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    const resultDiv = document.getElementById('scan-result');
+    const contentDiv = document.getElementById('result-content');
+    
+    resultDiv.style.display = 'block';
+    
+    if (data.success) {
+      resultDiv.className = 'scan-result success';
+      contentDiv.innerHTML = `
+        <h2>✅ Success!</h2>
+        <div class="student-info">
+          <p><strong>Name:</strong> ${data.student.name}</p>
+          <p><strong>Student ID:</strong> ${data.student.student_id}</p>
+          <p><strong>Email:</strong> ${data.student.email}</p>
+        </div>
+        <p style="margin-top: 1.5rem; font-size: 1.2rem; font-weight: 600;">Attendance marked successfully!</p>
+      `;
+      
+      // Auto-restart scanner after 3 seconds
+      setTimeout(() => {
+        resultDiv.style.display = 'none';
+        startScanning();
+      }, 3000);
+    } else {
+      if (data.already_attended) {
+        resultDiv.className = 'scan-result warning';
+        contentDiv.innerHTML = `
+          <h2>⚠️ Already Checked In</h2>
+          <p style="font-size: 1.1rem; margin: 1rem 0;">${data.message}</p>
+          ${data.student ? `
+            <div class="student-info">
+              <p><strong>Name:</strong> ${data.student.full_name || data.student.name || 'N/A'}</p>
+              <p><strong>Student ID:</strong> ${data.student.student_id || 'N/A'}</p>
+              <p><strong>Email:</strong> ${data.student.email || 'N/A'}</p>
+            </div>
+          ` : ''}
+        `;
+      } else {
+        resultDiv.className = 'scan-result error';
+        contentDiv.innerHTML = `
+          <h2>❌ Error</h2>
+          <p style="font-size: 1.1rem; margin: 1rem 0;">${data.message}</p>
+        `;
+      }
+      
+      // Auto-restart scanner after 2 seconds
+      setTimeout(() => {
+        resultDiv.style.display = 'none';
+        startScanning();
+      }, 2000);
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    const resultDiv = document.getElementById('scan-result');
+    const contentDiv = document.getElementById('result-content');
+    
+    resultDiv.style.display = 'block';
+    resultDiv.className = 'scan-result error';
+    contentDiv.innerHTML = `
+      <h2>❌ Error</h2>
+      <p>Failed to verify QR code. Please try again.</p>
+    `;
+    
+    setTimeout(() => {
+      resultDiv.style.display = 'none';
+      startScanning();
+    }, 2000);
+  });
+}
+
+// Cleanup on page unload
+window.addEventListener('beforeunload', () => {
+  stopScanning();
+});
+</script>
+
+{% endblock %}

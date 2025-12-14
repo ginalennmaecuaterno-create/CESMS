@@ -1,0 +1,294 @@
+{% extends "base_department.html" %}
+
+{% block title %}Verify Requirements{% endblock %}
+
+{% block content %}
+<!-- Premium Header -->
+<div class="bg-white border-b border-gray-200 py-8 sm:py-12 lg:py-16 px-4 sm:px-6 lg:px-8 mb-8 sm:mb-12">
+  <div class="max-w-7xl mx-auto">
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div>
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-light mb-2 sm:mb-4 tracking-tight text-gray-900">Verify Requirements</h1>
+        <p class="text-base sm:text-lg lg:text-xl text-gray-600">{{ registration.users.full_name }} ({{ registration.users.student_id }})</p>
+      </div>
+      <a href="{{ url_for('event_registrations.view_event_registration_details', event_id=event_id) }}" 
+         class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 sm:px-5 sm:py-3 rounded-lg sm:rounded-xl transition-all duration-300 text-sm sm:text-base font-semibold">
+        Back
+      </a>
+    </div>
+  </div>
+</div>
+
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-8 sm:pb-12 lg:pb-16">
+  {% if requirements %}
+  <!-- Requirements Checklist -->
+  <div class="space-y-3 sm:space-y-4 mb-6 sm:mb-8">
+    {% for req in requirements %}
+    <div class="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-100">
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div class="flex-1">
+          <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-2">{{ req.requirement_name }}</h3>
+          {% if req.description %}
+          <p class="text-sm sm:text-base text-gray-600 mb-3">{{ req.description }}</p>
+          {% endif %}
+          
+          <!-- Department Verification Status -->
+          <div class="flex items-center gap-2">
+            <span class="verification-status inline-flex items-center px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold {% if req.department_verified %}bg-green-100 text-green-800{% else %}bg-yellow-100 text-yellow-800{% endif %}">
+              {% if req.department_verified %}
+              <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+              </svg>
+              <span class="status-text">Verified by Department</span>
+              {% else %}
+              <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+              </svg>
+              <span class="status-text">Not Verified</span>
+              {% endif %}
+            </span>
+          </div>
+        </div>
+        
+        <div class="flex flex-col items-start lg:items-end gap-2">
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" 
+                   class="verify-checkbox w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500" 
+                   data-requirement-id="{{ req.id }}"
+                   data-registration-id="{{ registration.id }}"
+                   {% if req.department_verified %}checked{% endif %}>
+            <span class="text-sm sm:text-base font-medium text-gray-700">Mark as Verified</span>
+          </label>
+          <span class="verified-timestamp text-xs sm:text-sm text-gray-500" style="{% if not req.verified_at %}display:none;{% endif %}">
+            Verified: <span class="timestamp-value">{{ req.verified_at if req.verified_at else '' }}</span>
+          </span>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  
+  <!-- Approval Section -->
+  <div class="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 shadow-sm border border-gray-100">
+    {% if registration.registration_status == 'Approved' %}
+    <div class="bg-green-50 border border-green-200 rounded-xl p-6 text-center">
+      <svg class="w-16 h-16 mx-auto mb-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+      <h3 class="text-xl font-bold text-green-800 mb-2">Registration Approved</h3>
+      <p class="text-green-700">This registration has been approved.</p>
+      {% if registration.approved_at %}
+      <p class="text-sm text-green-600 mt-2">Approved: {{ registration.approved_at|format_datetime_readable }}</p>
+      {% endif %}
+    </div>
+    {% elif registration.registration_status == 'Rejected' %}
+    <div class="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
+      <svg class="w-16 h-16 mx-auto mb-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+      <h3 class="text-xl font-bold text-red-800 mb-2">Registration Rejected</h3>
+      <p class="text-red-700">This registration has been rejected.</p>
+      {% if registration.rejected_at %}
+      <p class="text-sm text-red-600 mt-2">Rejected: {{ registration.rejected_at|format_datetime_readable }}</p>
+      {% endif %}
+    </div>
+    {% else %}
+    <div id="all-verified-message" style="display: none;" class="bg-green-50 border border-green-200 rounded-xl p-4 mb-6 text-center">
+      <p class="text-sm sm:text-base text-green-800 font-semibold">✓ All requirements verified!</p>
+    </div>
+    <div class="flex flex-col sm:flex-row gap-3 justify-center">
+      <button id="approveBtn" onclick="confirmApprove()" 
+              class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 sm:px-8 sm:py-4 rounded-xl transition-all duration-300 text-sm sm:text-base font-semibold disabled:opacity-50 disabled:cursor-not-allowed">
+        Approve Registration
+      </button>
+      <button onclick="confirmReject()" 
+              class="bg-red-600 hover:bg-red-700 text-white px-6 py-3 sm:px-8 sm:py-4 rounded-xl transition-all duration-300 text-sm sm:text-base font-semibold">
+        Reject Registration
+      </button>
+    </div>
+    {% endif %}
+  </div>
+  
+  {% else %}
+  <!-- No Requirements -->
+  <div class="bg-white rounded-xl sm:rounded-2xl p-8 sm:p-12 shadow-sm border border-gray-100">
+    <div class="text-center mb-6">
+      <svg class="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 mx-auto mb-4 sm:mb-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+      </svg>
+      <h3 class="text-lg sm:text-xl font-semibold text-gray-900 mb-2">No Requirements Set</h3>
+      <p class="text-sm sm:text-base text-gray-600 mb-6">No requirements set for this event. You can approve or reject the registration directly.</p>
+    </div>
+    
+    {% if registration.registration_status == 'Approved' %}
+    <div class="bg-green-50 border border-green-200 rounded-xl p-6 text-center">
+      <h3 class="text-xl font-bold text-green-800 mb-2">Registration Approved</h3>
+      {% if registration.approved_at %}
+      <p class="text-sm text-green-600 mt-2">Approved: {{ registration.approved_at|format_datetime_readable }}</p>
+      {% endif %}
+    </div>
+    {% elif registration.registration_status == 'Rejected' %}
+    <div class="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
+      <h3 class="text-xl font-bold text-red-800 mb-2">Registration Rejected</h3>
+      {% if registration.rejected_at %}
+      <p class="text-sm text-red-600 mt-2">Rejected: {{ registration.rejected_at|format_datetime_readable }}</p>
+      {% endif %}
+    </div>
+    {% else %}
+    <div class="flex flex-col sm:flex-row gap-3 justify-center">
+      <button id="approveBtn" onclick="confirmApprove()" 
+              class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 sm:px-8 sm:py-4 rounded-xl transition-all duration-300 text-sm sm:text-base font-semibold disabled:opacity-50 disabled:cursor-not-allowed">
+        Approve Registration
+      </button>
+      <button onclick="confirmReject()" 
+              class="bg-red-600 hover:bg-red-700 text-white px-6 py-3 sm:px-8 sm:py-4 rounded-xl transition-all duration-300 text-sm sm:text-base font-semibold">
+        Reject Registration
+      </button>
+    </div>
+    {% endif %}
+  </div>
+  {% endif %}
+</div>
+
+<script>
+const registrationId = '{{ registration.id }}';
+
+console.log('Script loaded. Registration ID:', registrationId);
+
+// Handle checkbox changes
+const checkboxes = document.querySelectorAll('.verify-checkbox');
+console.log('Found checkboxes:', checkboxes.length);
+
+checkboxes.forEach(checkbox => {
+  console.log('Checkbox:', checkbox, 'Disabled:', checkbox.disabled);
+  
+  checkbox.addEventListener('change', function() {
+    console.log('Checkbox changed!', this.dataset.requirementId, 'Checked:', this.checked);
+    
+    const requirementId = this.dataset.requirementId;
+    const verified = this.checked;
+    
+    // Allow both checking and unchecking
+    toggleVerification(requirementId, verified, this);
+  });
+});
+
+function toggleVerification(requirementId, verified, checkbox) {
+  // Disable checkbox during request
+  const originalState = checkbox.checked;
+  checkbox.disabled = true;
+  
+  fetch('/department/requirements/toggle', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      registration_id: registrationId,
+      requirement_id: requirementId,
+      verified: verified
+    })
+  })
+  .then(response => {
+    console.log('Response status:', response.status);
+    if (!response.ok) {
+      throw new Error('Server returned ' + response.status);
+    }
+    return response.json();
+  })
+  .then(data => {
+    console.log('Server response:', data);
+    console.log('Success?', data.success);
+    
+    if (data.success) {
+      // Success! Reload the page to show updated status
+      console.log('Verification updated successfully. Reloading...');
+      location.reload();
+    } else {
+      alert('Error: ' + (data.message || 'Failed to update verification'));
+      checkbox.checked = originalState;
+      checkbox.disabled = false;
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('Network error: ' + error.message + '. Please check your connection and try again.');
+    checkbox.checked = originalState;
+    checkbox.disabled = false;
+  });
+}
+
+function checkAllVerified() {
+  const allCheckboxes = document.querySelectorAll('.verify-checkbox');
+  const allChecked = allCheckboxes.length > 0 && Array.from(allCheckboxes).every(cb => cb.checked);
+  
+  console.log('All verified?', allChecked, 'Total checkboxes:', allCheckboxes.length);
+  
+  const message = document.getElementById('all-verified-message');
+  if (message) {
+    message.style.display = allChecked ? 'block' : 'none';
+  }
+  
+  // Enable/disable approve button
+  const approveBtn = document.getElementById('approveBtn');
+  
+  if (approveBtn) {
+    // If there are requirements, all must be checked to enable approve
+    // If no requirements, approve is always enabled
+    if (allCheckboxes.length === 0 || allChecked) {
+      approveBtn.disabled = false;
+      approveBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+    } else {
+      approveBtn.disabled = true;
+      approveBtn.classList.add('opacity-50', 'cursor-not-allowed');
+    }
+  }
+  
+  // Reject button is always enabled
+}
+
+// Check on page load
+window.addEventListener('load', checkAllVerified);
+
+// Approve and Reject confirmation functions
+function confirmApprove() {
+  // Check if all requirements are verified
+  const allCheckboxes = document.querySelectorAll('.verify-checkbox');
+  const allChecked = allCheckboxes.length === 0 || Array.from(allCheckboxes).every(cb => cb.checked);
+  
+  if (!allChecked) {
+    alert('Please verify all requirements before approving the registration.');
+    return;
+  }
+  
+  const registrationId = '{{ registration.id }}';
+  const eventId = '{{ event_id }}';
+  const approveUrl = `/department/approve-registration?registration_id=${registrationId}&event_id=${eventId}`;
+  
+  showConfirmModal(
+    'Approve Registration',
+    'Are you sure you want to approve this registration?',
+    function() {
+      window.location.href = approveUrl;
+    },
+    'success'
+  );
+}
+
+function confirmReject() {
+  const registrationId = '{{ registration.id }}';
+  const eventId = '{{ event_id }}';
+  const rejectUrl = `/department/reject-registration?registration_id=${registrationId}&event_id=${eventId}`;
+  
+  showConfirmModal(
+    'Reject Registration',
+    'Are you sure you want to reject this registration?',
+    function() {
+      window.location.href = rejectUrl;
+    },
+    'danger'
+  );
+}
+</script>
+
+{% endblock %}

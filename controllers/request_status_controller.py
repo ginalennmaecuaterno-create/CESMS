@@ -138,6 +138,9 @@ def edit_request():
         
         # Handle form submission
         if request.method == "POST":
+            import json
+            from config import supabase
+            
             event_name = request.form.get("event_name")
             description = request.form.get("description")
             location = request.form.get("location")
@@ -145,6 +148,7 @@ def edit_request():
             start_time = request.form.get("start_time")
             end_time = request.form.get("end_time")
             participant_limit = request.form.get("participant_limit")
+            requirements_json = request.form.get("requirements")
             
             # Validation
             if not all([event_name, location, date, start_time, end_time]):
@@ -157,6 +161,14 @@ def edit_request():
                     participant_limit = int(participant_limit)
                 else:
                     participant_limit = None
+                
+                # Parse requirements if provided
+                requirements = []
+                if requirements_json:
+                    try:
+                        requirements = json.loads(requirements_json)
+                    except:
+                        requirements = []
                 
                 # Update the request
                 result = RequestStatus.update_request(
@@ -171,7 +183,12 @@ def edit_request():
                     participant_limit=participant_limit
                 )
                 
+                # Update requirements
                 if result:
+                    supabase.table("event_requests").update({
+                        "requirements": requirements
+                    }).eq("id", request_id).execute()
+                    
                     flash("Request updated successfully!", "success")
                     return redirect(url_for("request_status.view_request_status"))
                 else:

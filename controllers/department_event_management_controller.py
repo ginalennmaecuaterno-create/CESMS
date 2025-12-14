@@ -23,9 +23,16 @@ def view_department_events():
         # Get department ID from user
         department_id = user["id"]
         
+        # Auto-update completed events in database
+        EventManagement.auto_update_completed_events()
+        
         # Get all events for this department
         events_response = EventManagement.get_events_by_department(department_id)
         events = events_response.data if events_response.data else []
+        
+        # Add display status to each event
+        for event in events:
+            event["display_status"] = EventManagement.get_event_display_status(event)
         
         # Get event counts for this department
         counts = EventManagement.get_event_counts_by_status_for_department(department_id)
@@ -35,7 +42,7 @@ def view_department_events():
         
         # Filter events if needed
         if status_filter != "all":
-            events = [e for e in events if e["status"].lower() == status_filter.lower()]
+            events = [e for e in events if e["display_status"].lower() == status_filter.lower()]
         
         return render_template(
             "department_event_management.html",

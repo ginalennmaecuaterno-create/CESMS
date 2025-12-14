@@ -3,90 +3,139 @@
 {% block title %}Postpone Event{% endblock %}
 
 {% block content %}
-<div class="page-header">
-  <h1>Postpone/Reschedule Event</h1>
-  <a href="{{ url_for('osas_event_management.view_all_events') }}" class="btn-back">← Back to Event Management</a>
-</div>
-
-{% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-    {% for category, message in messages %}
-      <div class="alert alert-{{ category }}">
-        {{ message }}
+<!-- Premium Header -->
+<div class="bg-white border-b border-gray-200 py-16 px-8 mb-12">
+  <div class="max-w-7xl mx-auto">
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-5xl font-light mb-4 tracking-tight text-gray-900">Postpone/Reschedule Event</h1>
+        <p class="text-xl text-gray-600">Update event schedule</p>
       </div>
-    {% endfor %}
-  {% endif %}
-{% endwith %}
-
-<div class="current-event-info">
-  <h2>Current Event Details</h2>
-  <div class="info-grid">
-    <div class="info-item">
-      <strong>Event Name:</strong> {{ event.event_name }}
-    </div>
-    <div class="info-item">
-      <strong>Department:</strong> 
-      {% if event.users.department_name %}
-        {{ event.users.department_name }}
-      {% else %}
-        {{ event.users.full_name }}
-      {% endif %}
-    </div>
-    <div class="info-item">
-      <strong>Current Date:</strong> {{ event.date }}
-    </div>
-    <div class="info-item">
-      <strong>Current Time:</strong> {{ event.start_time }} - {{ event.end_time }}
-    </div>
-    <div class="info-item">
-      <strong>Location:</strong> {{ event.location }}
-    </div>
-    <div class="info-item">
-      <strong>Status:</strong> 
-      <span class="status-badge status-{{ event.status.lower() }}">{{ event.status }}</span>
+      <a href="{{ url_for('osas_event_management.view_all_events') }}" 
+         class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl transition-all duration-300 shadow-sm">
+        Back to Event Management
+      </a>
     </div>
   </div>
 </div>
 
-<div class="form-container">
-  <h2>New Schedule</h2>
-  <form method="POST" class="postpone-form">
-    
-    <div class="form-group">
-      <label for="new_date">New Event Date *</label>
-      <input type="date" id="new_date" name="new_date" required value="{{ event.date }}">
-    </div>
+<div class="max-w-5xl mx-auto px-8 pb-16">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="mb-8 p-6 rounded-xl {% if category == 'success' %}bg-green-50 text-green-800 border border-green-200{% else %}bg-red-50 text-red-800 border border-red-200{% endif %}">
+          {{ message }}
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
 
-    <div class="form-row">
-      <div class="form-group">
-        <label for="new_start_time">New Start Time *</label>
-        <input type="time" id="new_start_time" name="new_start_time" required value="{{ event.start_time }}">
+  <!-- Current Event Details -->
+  <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 mb-8">
+    <div class="flex items-center gap-3 mb-6">
+      <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+      </svg>
+      <h2 class="text-2xl font-semibold text-gray-900">Current Event Details</h2>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="p-4 bg-gray-50 rounded-xl">
+        <p class="text-sm text-gray-600 mb-1">Event Name</p>
+        <p class="text-lg font-semibold text-gray-900">{{ event.event_name }}</p>
+      </div>
+      <div class="p-4 bg-gray-50 rounded-xl">
+        <p class="text-sm text-gray-600 mb-1">Department</p>
+        <p class="text-lg font-semibold text-gray-900">
+          {% if event.users.department_name %}
+            {{ event.users.department_name }}
+          {% else %}
+            {{ event.users.full_name }}
+          {% endif %}
+        </p>
+      </div>
+      <div class="p-4 bg-gray-50 rounded-xl">
+        <p class="text-sm text-gray-600 mb-1">Current Date</p>
+        <p class="text-lg font-semibold text-gray-900">{{ event.date }}</p>
+      </div>
+      <div class="p-4 bg-gray-50 rounded-xl">
+        <p class="text-sm text-gray-600 mb-1">Current Time</p>
+        <p class="text-lg font-semibold text-gray-900">{{ event.start_time|time_12hr }} - {{ event.end_time|time_12hr }}</p>
+      </div>
+      <div class="p-4 bg-gray-50 rounded-xl">
+        <p class="text-sm text-gray-600 mb-1">Location</p>
+        <p class="text-lg font-semibold text-gray-900">{{ event.location }}</p>
+      </div>
+      <div class="p-4 bg-gray-50 rounded-xl">
+        <p class="text-sm text-gray-600 mb-1">Status</p>
+        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
+          {% if event.status == 'Active' %}bg-green-100 text-green-800
+          {% elif event.status == 'Completed' %}bg-gray-100 text-gray-800
+          {% elif event.status == 'Cancelled' %}bg-red-100 text-red-800
+          {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+          {{ event.status }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- New Schedule Form -->
+  <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+    <div class="flex items-center gap-3 mb-6">
+      <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+      <h2 class="text-2xl font-semibold text-gray-900">New Schedule</h2>
+    </div>
+    <form method="POST" class="space-y-6">
+      
+      <div>
+        <label for="new_date" class="block text-sm font-medium text-gray-700 mb-2">New Event Date *</label>
+        <input type="date" 
+               id="new_date" 
+               name="new_date" 
+               required 
+               value="{{ event.date }}"
+               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all">
       </div>
 
-      <div class="form-group">
-        <label for="new_end_time">New End Time *</label>
-        <input type="time" id="new_end_time" name="new_end_time" required value="{{ event.end_time }}">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label for="new_start_time" class="block text-sm font-medium text-gray-700 mb-2">New Start Time *</label>
+          <input type="time" 
+                 id="new_start_time" 
+                 name="new_start_time" 
+                 required 
+                 value="{{ event.start_time }}"
+                 class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all">
+        </div>
+
+        <div>
+          <label for="new_end_time" class="block text-sm font-medium text-gray-700 mb-2">New End Time *</label>
+          <input type="time" 
+                 id="new_end_time" 
+                 name="new_end_time" 
+                 required 
+                 value="{{ event.end_time }}"
+                 class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all">
+        </div>
       </div>
-    </div>
 
-    <div class="form-actions">
-      <button type="submit" class="btn-primary">Confirm Reschedule</button>
-      <a href="{{ url_for('osas_event_management.view_all_events') }}" class="btn-secondary">Cancel</a>
-    </div>
+      <div class="flex gap-4 pt-4">
+        <button type="submit" 
+                class="flex-1 inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+          </svg>
+          Confirm Reschedule
+        </button>
+        <a href="{{ url_for('osas_event_management.view_all_events') }}" 
+           class="inline-flex items-center justify-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-700 px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300">
+          Cancel
+        </a>
+      </div>
 
-  </form>
-</div>
-
-<div class="info-box">
-  <h3>Important Notes:</h3>
-  <ul>
-    <li><strong>Schedule Conflict Check:</strong> System will automatically check for conflicts with the new date/time</li>
-    <li><strong>Same Location:</strong> The event location will remain the same</li>
-    <li><strong>Registered Students:</strong> All current registrations will be maintained</li>
-    <li><strong>Department Notification:</strong> Department should be notified about the schedule change</li>
-    <li><strong>Administrative Override:</strong> As OSAS, you can reschedule any event</li>
-    <li>If a conflict is detected, the system will reject the reschedule and you'll need to choose a different time</li>
-  </ul>
+    </form>
+  </div>
 </div>
 
 {% endblock %}

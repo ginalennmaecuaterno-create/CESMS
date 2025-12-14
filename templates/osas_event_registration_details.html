@@ -1,0 +1,225 @@
+{% extends "base_osas.html" %}
+
+{% block title %}Registration Details - OSAS{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-8 py-16">
+  
+  <!-- Page Header -->
+  <div class="mb-12 flex items-start justify-between">
+    <div>
+      <h1 class="text-5xl font-bold text-gray-900 tracking-tight mb-2 bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
+        Registrations
+      </h1>
+      <p class="text-lg text-gray-500">{{ event.event_name }}</p>
+    </div>
+    <a href="{{ url_for('osas_event_management.view_all_events') }}" 
+       class="inline-flex items-center gap-2 px-5 py-3 bg-white text-gray-700 text-sm font-medium rounded-xl border border-gray-300 hover:bg-gray-50 hover:shadow-md transition-all duration-200">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+      </svg>
+      Back
+    </a>
+  </div>
+
+  <!-- Event Details -->
+  <div class="mb-10 bg-gradient-to-br from-gray-50 to-gray-100/50 rounded-2xl p-8 border border-gray-200">
+    <h2 class="text-xl font-semibold text-gray-900 mb-6">Event Details</h2>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+      <div class="flex items-start gap-3">
+        <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center shrink-0">
+          <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+          </svg>
+        </div>
+        <div>
+          <div class="text-xs text-gray-500 mb-1">Location</div>
+          <div class="text-sm font-semibold text-gray-900">{{ event.location }}</div>
+        </div>
+      </div>
+      <div class="flex items-start gap-3">
+        <div class="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center shrink-0">
+          <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+          </svg>
+        </div>
+        <div>
+          <div class="text-xs text-gray-500 mb-1">Date</div>
+          <div class="text-sm font-semibold text-gray-900">{{ event.date|date_readable }}</div>
+        </div>
+      </div>
+      <div class="flex items-start gap-3">
+        <div class="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center shrink-0">
+          <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+        </div>
+        <div>
+          <div class="text-xs text-gray-500 mb-1">Time</div>
+          <div class="text-sm font-semibold text-gray-900">{{ event.start_time|time_12hr }} - {{ event.end_time|time_12hr }}</div>
+        </div>
+      </div>
+      <div class="flex items-start gap-3">
+        <div class="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center shrink-0">
+          <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+          </svg>
+        </div>
+        <div>
+          <div class="text-xs text-gray-500 mb-1">Participant Limit</div>
+          <div class="text-sm font-semibold text-gray-900">{{ event.participant_limit }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Statistics -->
+  <div class="mb-10">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="bg-gradient-to-br from-yellow-50 to-yellow-100/50 rounded-2xl p-6 border border-yellow-200/50">
+        <div class="flex items-center justify-between mb-2">
+          <div class="text-sm font-medium text-yellow-600">Pending</div>
+          <svg class="w-8 h-8 text-yellow-600/30" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
+          </svg>
+        </div>
+        <div class="text-4xl font-bold text-yellow-700">{{ counts.Pending }}</div>
+      </div>
+      
+      <div class="bg-gradient-to-br from-green-50 to-green-100/50 rounded-2xl p-6 border border-green-200/50">
+        <div class="flex items-center justify-between mb-2">
+          <div class="text-sm font-medium text-green-600">Approved</div>
+          <svg class="w-8 h-8 text-green-600/30" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+          </svg>
+        </div>
+        <div class="text-4xl font-bold text-green-700">{{ counts.Approved }}</div>
+      </div>
+      
+      <div class="bg-gradient-to-br from-red-50 to-red-100/50 rounded-2xl p-6 border border-red-200/50">
+        <div class="flex items-center justify-between mb-2">
+          <div class="text-sm font-medium text-red-600">Rejected</div>
+          <svg class="w-8 h-8 text-red-600/30" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+          </svg>
+        </div>
+        <div class="text-4xl font-bold text-red-700">{{ counts.Rejected }}</div>
+      </div>
+      
+      <div class="bg-gradient-to-br from-blue-50 to-blue-100/50 rounded-2xl p-6 border border-blue-200/50">
+        <div class="flex items-center justify-between mb-2">
+          <div class="text-sm font-medium text-blue-600">Available Seats</div>
+          <svg class="w-8 h-8 text-blue-600/30" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path>
+          </svg>
+        </div>
+        <div class="text-4xl font-bold text-blue-700">{{ event.participant_limit - counts.Approved }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pending Registrations -->
+  <div class="mb-10">
+    <h2 class="text-2xl font-semibold text-gray-900 mb-6">Pending Registrations</h2>
+    {% if pending_registrations %}
+      <div class="space-y-3">
+        {% for reg in pending_registrations %}
+        <div class="bg-white rounded-xl p-5 border border-yellow-200 hover:border-yellow-300 hover:shadow-md transition-all duration-200">
+          <div class="flex items-center justify-between gap-4">
+            <div class="flex items-center gap-4 flex-1">
+              <div class="w-12 h-12 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl flex items-center justify-center text-white font-semibold text-lg">
+                {{ reg.users.full_name[0] }}
+              </div>
+              <div class="flex-1">
+                <div class="font-semibold text-gray-900">{{ reg.users.full_name }}</div>
+                <div class="text-sm text-gray-500">{{ reg.users.student_id }} • {{ reg.users.email }}</div>
+                <div class="text-xs text-gray-400 mt-1">Registered: {{ reg.created_at|datetime_readable if reg.created_at else 'N/A' }}</div>
+              </div>
+            </div>
+            
+            <div class="flex items-center gap-2">
+              <a href="{{ url_for('osas_event_management.view_registration_requirements', registration_id=reg.id, event_id=event.id) }}"
+                 class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                Verify Requirements
+              </a>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="text-center py-16 bg-gray-50 rounded-2xl border border-gray-200">
+        <p class="text-gray-500">No pending registrations</p>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Approved Registrations -->
+  <div class="mb-10">
+    <h2 class="text-2xl font-semibold text-gray-900 mb-6">Approved Registrations</h2>
+    {% if approved_registrations %}
+      <div class="space-y-3">
+        {% for reg in approved_registrations %}
+        <div class="bg-white rounded-xl p-5 border border-green-200 hover:shadow-md transition-all duration-200">
+          <div class="flex items-center justify-between gap-4">
+            <div class="flex items-center gap-4 flex-1">
+              <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center text-white font-semibold text-lg">
+                {{ reg.users.full_name[0] }}
+              </div>
+              <div class="flex-1">
+                <div class="font-semibold text-gray-900">{{ reg.users.full_name }}</div>
+                <div class="text-sm text-gray-500">{{ reg.users.student_id }} • {{ reg.users.email }}</div>
+                <div class="text-xs text-gray-400 mt-1">Approved: {{ reg.approved_at|datetime_readable if reg.approved_at else 'N/A' }}</div>
+              </div>
+            </div>
+            
+            <a href="{{ url_for('osas_event_management.view_registration_requirements', registration_id=reg.id, event_id=event.id) }}"
+               class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors duration-200">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
+              Requirements
+            </a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="text-center py-16 bg-gray-50 rounded-2xl border border-gray-200">
+        <p class="text-gray-500">No approved registrations yet</p>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Rejected Registrations -->
+  <div>
+    <h2 class="text-2xl font-semibold text-gray-900 mb-6">Rejected Registrations</h2>
+    {% if rejected_registrations %}
+      <div class="space-y-3">
+        {% for reg in rejected_registrations %}
+        <div class="bg-white rounded-xl p-5 border border-red-200 opacity-75">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center text-white font-semibold text-lg">
+              {{ reg.users.full_name[0] }}
+            </div>
+            <div class="flex-1">
+              <div class="font-semibold text-gray-900">{{ reg.users.full_name }}</div>
+              <div class="text-sm text-gray-500">{{ reg.users.student_id }} • {{ reg.users.email }}</div>
+              <div class="text-xs text-gray-400 mt-1">Rejected: {{ reg.rejected_at|datetime_readable if reg.rejected_at else 'N/A' }}</div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="text-center py-16 bg-gray-50 rounded-2xl border border-gray-200">
+        <p class="text-gray-500">No rejected registrations</p>
+      </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

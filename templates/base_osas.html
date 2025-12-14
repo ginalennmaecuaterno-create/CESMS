@@ -4,94 +4,408 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}OSAS Panel - CESMS{% endblock %}</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+  <script src="https://cdn.tailwindcss.com"></script>
   <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/lspu-logo.png') }}" style="border-radius: 50%;">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+      background: #f5f5f7;
+      color: #1d1d1f;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    
+    /* Sidebar Styles */
+    .sidebar {
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 280px;
+      background: #ffffff;
+      border-right: 1px solid #d2d2d7;
+      overflow-y: auto;
+      z-index: 110;
+    }
+    
+    .sidebar-brand {
+      padding: 28px 20px;
+      border-bottom: 1px solid #d2d2d7;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .sidebar-brand img {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+    }
+    
+    .sidebar-brand h1 {
+      font-size: 22px;
+      font-weight: 600;
+      color: #1d1d1f;
+      letter-spacing: -0.5px;
+    }
+    
+    .nav-section {
+      padding: 20px 12px;
+    }
+    
+    .nav-section-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: #86868b;
+      padding: 0 12px 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+    
+    .nav-item {
+      display: block;
+      padding: 10px 12px;
+      margin: 2px 0;
+      border-radius: 10px;
+      color: #1d1d1f;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 400;
+      transition: all 0.15s ease;
+    }
+    
+    .nav-item:hover {
+      background: #f5f5f7;
+      color: #0071e3;
+    }
+    
+    .nav-item.active {
+      background: #0071e3;
+      color: white;
+      font-weight: 500;
+    }
+    
+    /* Main Content */
+    .main-content {
+      margin-left: 280px;
+      min-height: 100vh;
+    }
+    
+    /* Top Bar */
+    .top-bar {
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: saturate(180%) blur(20px);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+      padding: 16px 32px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    
+    .top-bar h2 {
+      font-size: 15px;
+      font-weight: 400;
+      color: #1d1d1f;
+      letter-spacing: -0.2px;
+    }
+    
+    /* Mobile Menu Button */
+    #mobileMenuBtn {
+      transition: all 0.3s ease-in-out;
+    }
+    
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease-in-out;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+      }
+      
+      .sidebar.open {
+        transform: translateX(0);
+      }
+      
+      .sidebar.open ~ #mobileMenuBtn {
+        left: 296px;
+      }
+      
+      .main-content {
+        margin-left: 0;
+      }
+      
+      .top-bar {
+        padding-left: 70px;
+      }
+    }
+  </style>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'apple-blue': '#0071e3',
+            'apple-gray': '#f5f5f7',
+          }
+        }
+      }
+    }
+  </script>
 </head>
 <body>
-  <div class="dashboard-container">
-    <aside class="dashboard-sidebar" id="sidebar">
-      <div class="sidebar-brand">
-        <img src="{{ url_for('static', filename='images/lspu-logo.png') }}" alt="LSPU Logo" class="sidebar-brand-logo">
-        <div class="sidebar-brand-text">
-          <h1>CESMS</h1>
-        </div>
+  
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <img src="{{ url_for('static', filename='images/lspu-logo.png') }}" alt="LSPU Logo">
+      <h1>CESMS</h1>
+    </div>
+    
+    <nav>
+      <div class="nav-section">
+        <div class="nav-section-title">Main</div>
+        <a href="{{ url_for('osas_dashboard') }}" class="nav-item">Dashboard</a>
       </div>
       
-      <nav class="sidebar-nav">
-        <div class="nav-section">
-          <div class="nav-section-title">Main</div>
-          <a href="{{ url_for('osas_dashboard') }}" class="nav-item">
-            <span class="nav-item-icon">📊</span>
-            <span class="nav-item-text">Dashboard</span>
-          </a>
-        </div>
-        
-        <div class="nav-section">
-          <div class="nav-section-title">Management</div>
-          <a href="{{ url_for('event_request_management.view_event_requests') }}" class="nav-item">
-            <span class="nav-item-icon">📝</span>
-            <span class="nav-item-text">Event Requests</span>
-          </a>
-          <a href="{{ url_for('osas_event_management.view_all_events') }}" class="nav-item">
-            <span class="nav-item-icon">⚙️</span>
-            <span class="nav-item-text">Event Management</span>
-          </a>
-        </div>
-        
-        <div class="nav-section">
-          <a href="{{ url_for('user.logout') }}" class="nav-item logout">
-            <span class="nav-item-icon">🚪</span>
-            <span class="nav-item-text">Logout</span>
-          </a>
-        </div>
-      </nav>
-    </aside>
-
-    <!-- Main Content Area -->
-    <main class="dashboard-main" id="main-content">
-      <!-- Top Header -->
-      <header class="dashboard-header">
-        <div class="header-left">
-          <button class="sidebar-toggle" aria-label="Toggle sidebar">
-            <span>☰</span>
-          </button>
-          <div class="header-info">
-            <h2 class="department-name">OSAS - Office of Student Affairs and Services</h2>
-            <nav class="breadcrumb">
-              <span>{% block breadcrumb %}{% endblock %}</span>
-            </nav>
-          </div>
-        </div>
-        
-    
-        
-      </header>
-
-      <!-- Content Area -->
-      <div class="dashboard-content">
-        <!-- Flash Messages -->
-        <div class="flash-messages">
-          {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-              {% for category, message in messages %}
-                <div class="flash-message {{ category }}">
-                  <span>{{ message }}</span>
-                  <button class="close-btn" aria-label="Close message">&times;</button>
-                </div>
-              {% endfor %}
-            {% endif %}
-          {% endwith %}
-        </div>
-
-        <!-- Page Content -->
-        {% block content %}{% endblock %}
+      <div class="nav-section">
+        <div class="nav-section-title">Management</div>
+        <a href="{{ url_for('osas_create_event.create_osas_event') }}" class="nav-item">Create Event</a>
+        <a href="{{ url_for('event_request_management.view_event_requests') }}" class="nav-item">Event Requests</a>
+        <a href="{{ url_for('osas_event_management.view_all_events') }}" class="nav-item">Events</a>
       </div>
-    </main>
-  </div>
+      
+      <div class="nav-section">
+        <a href="javascript:void(0)" class="nav-item" onclick="showConfirmModal('Logout', 'Are you sure you want to logout?', function() { window.location.href = '{{ url_for('user.logout') }}'; }, 'warning')">Logout</a>
+      </div>
+    </nav>
+  </aside>
 
   <!-- Mobile Overlay -->
-  <div class="mobile-overlay"></div>
+  <div id="mobileOverlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] hidden md:hidden"></div>
 
-  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+  <!-- Mobile Menu Button -->
+  <button id="mobileMenuBtn" class="fixed top-4 left-4 z-[120] md:hidden bg-white rounded-xl p-3 shadow-lg border border-gray-200 transition-all">
+    <svg id="menuIcon" class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+    </svg>
+    <svg id="closeIcon" class="w-6 h-6 text-gray-700 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+    </svg>
+  </button>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="top-bar">
+      <h2>OSAS - Office of Student Affairs and Services</h2>
+    </div>
+    
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Confirmation Modal -->
+  <div id="confirmModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-[200]" style="display: none;">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 transform transition-all">
+      <div class="p-6">
+        <div class="flex items-center gap-4 mb-4">
+          <div id="modalIcon" class="w-12 h-12 rounded-full flex items-center justify-center bg-blue-100">
+            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+            </svg>
+          </div>
+          <div class="flex-1">
+            <h3 id="modalTitle" class="text-lg font-semibold text-gray-900">Confirm Action</h3>
+          </div>
+        </div>
+        <p id="modalMessage" class="text-gray-600 mb-6">Are you sure you want to proceed?</p>
+        <div class="flex gap-3">
+          <button onclick="closeModal()" class="flex-1 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-medium transition-all">
+            Cancel
+          </button>
+          <button id="modalConfirmBtn" class="flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-all">
+            Confirm
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Alert Modal -->
+  <div id="alertModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-[200]" style="display: none;">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 transform transition-all">
+      <div class="p-6">
+        <div class="flex items-center gap-4 mb-4">
+          <div id="alertIcon" class="w-12 h-12 rounded-full flex items-center justify-center bg-blue-100">
+            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <div class="flex-1">
+            <h3 id="alertTitle" class="text-lg font-semibold text-gray-900">Notice</h3>
+          </div>
+        </div>
+        <p id="alertMessage" class="text-gray-600 mb-6">This is an alert message.</p>
+        <button onclick="closeAlertModal()" class="w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-all">
+          OK
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Confirmation Modal Functions
+    function showConfirmModal(title, message, onConfirm, type = 'warning') {
+      const modal = document.getElementById('confirmModal');
+      const modalTitle = document.getElementById('modalTitle');
+      const modalMessage = document.getElementById('modalMessage');
+      const modalIcon = document.getElementById('modalIcon');
+      const confirmBtn = document.getElementById('modalConfirmBtn');
+      
+      modalTitle.textContent = title;
+      modalMessage.textContent = message;
+      
+      // Set icon and colors based on type
+      if (type === 'danger') {
+        modalIcon.className = 'w-12 h-12 rounded-full flex items-center justify-center bg-red-100';
+        modalIcon.innerHTML = '<svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>';
+        confirmBtn.className = 'flex-1 px-4 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-medium transition-all';
+      } else if (type === 'success') {
+        modalIcon.className = 'w-12 h-12 rounded-full flex items-center justify-center bg-green-100';
+        modalIcon.innerHTML = '<svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>';
+        confirmBtn.className = 'flex-1 px-4 py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl font-medium transition-all';
+      } else {
+        modalIcon.className = 'w-12 h-12 rounded-full flex items-center justify-center bg-blue-100';
+        modalIcon.innerHTML = '<svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>';
+        confirmBtn.className = 'flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-all';
+      }
+      
+      // Set up confirm button
+      confirmBtn.onclick = function() {
+        closeModal();
+        if (onConfirm) onConfirm();
+      };
+      
+      modal.style.display = 'flex';
+      setTimeout(() => modal.classList.add('show'), 10);
+    }
+    
+    function closeModal() {
+      const modal = document.getElementById('confirmModal');
+      modal.style.display = 'none';
+      modal.classList.remove('show');
+    }
+    
+    // Alert Modal Functions
+    function showAlert(title, message, type = 'info') {
+      const modal = document.getElementById('alertModal');
+      const alertTitle = document.getElementById('alertTitle');
+      const alertMessage = document.getElementById('alertMessage');
+      const alertIcon = document.getElementById('alertIcon');
+      
+      alertTitle.textContent = title;
+      alertMessage.textContent = message;
+      
+      // Set icon and colors based on type
+      if (type === 'error') {
+        alertIcon.className = 'w-12 h-12 rounded-full flex items-center justify-center bg-red-100';
+        alertIcon.innerHTML = '<svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>';
+      } else if (type === 'success') {
+        alertIcon.className = 'w-12 h-12 rounded-full flex items-center justify-center bg-green-100';
+        alertIcon.innerHTML = '<svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>';
+      } else if (type === 'warning') {
+        alertIcon.className = 'w-12 h-12 rounded-full flex items-center justify-center bg-yellow-100';
+        alertIcon.innerHTML = '<svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>';
+      } else {
+        alertIcon.className = 'w-12 h-12 rounded-full flex items-center justify-center bg-blue-100';
+        alertIcon.innerHTML = '<svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>';
+      }
+      
+      modal.style.display = 'flex';
+      setTimeout(() => modal.classList.add('show'), 10);
+    }
+    
+    function closeAlertModal() {
+      const modal = document.getElementById('alertModal');
+      modal.style.display = 'none';
+      modal.classList.remove('show');
+    }
+    
+    // Close modals on ESC key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closeModal();
+        closeAlertModal();
+      }
+    });
+    
+    // Close modals on backdrop click
+    document.getElementById('confirmModal').addEventListener('click', function(e) {
+      if (e.target === this) closeModal();
+    });
+    
+    document.getElementById('alertModal').addEventListener('click', function(e) {
+      if (e.target === this) closeAlertModal();
+    });
+    
+    // Mobile Menu Functions
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const sidebar = document.querySelector('.sidebar');
+    const mobileOverlay = document.getElementById('mobileOverlay');
+    const menuIcon = document.getElementById('menuIcon');
+    const closeIcon = document.getElementById('closeIcon');
+    
+    function toggleMobileMenu() {
+      const isOpen = sidebar.classList.toggle('open');
+      mobileOverlay.classList.toggle('hidden');
+      document.body.style.overflow = isOpen ? 'hidden' : '';
+      
+      // Toggle icons
+      if (isOpen) {
+        menuIcon.classList.add('hidden');
+        closeIcon.classList.remove('hidden');
+      } else {
+        menuIcon.classList.remove('hidden');
+        closeIcon.classList.add('hidden');
+      }
+    }
+    
+    function closeMobileMenu() {
+      sidebar.classList.remove('open');
+      mobileOverlay.classList.add('hidden');
+      document.body.style.overflow = '';
+      menuIcon.classList.remove('hidden');
+      closeIcon.classList.add('hidden');
+    }
+    
+    // Toggle menu on button click
+    mobileMenuBtn.addEventListener('click', toggleMobileMenu);
+    
+    // Close menu on overlay click
+    mobileOverlay.addEventListener('click', closeMobileMenu);
+    
+    // Close menu when clicking a nav link
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', function() {
+        if (window.innerWidth < 768) {
+          closeMobileMenu();
+        }
+      });
+    });
+    
+    // Close menu on window resize to desktop
+    window.addEventListener('resize', function() {
+      if (window.innerWidth >= 768) {
+        closeMobileMenu();
+      }
+    });
+  </script>
+
 </body>
 </html>

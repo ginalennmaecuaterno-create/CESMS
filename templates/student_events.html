@@ -1,0 +1,381 @@
+{% extends "base_student.html" %}
+
+{% block title %}Browse Events - Student Portal{% endblock %}
+
+{% block content %}
+<div style="min-height: 100vh;">
+  <div class="container section">
+    {% if events %}
+    <!-- Search and Filter Section -->
+    <div class="card mb-lg search-filter-card">
+      <!-- Search Bar with Filter Button -->
+      <div style="display: flex; gap: 0.625rem; align-items: center;">
+        <div style="flex: 1; position: relative;">
+          <input type="text" id="searchInput" placeholder="Search events..." class="input" style="padding-left: 2.75rem; width: 100%;">
+          <svg style="width: 20px; height: 20px; color: var(--color-text-tertiary); position: absolute; left: 1rem; top: 50%; transform: translateY(-50%);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+        </div>
+        
+        <button id="filterToggleBtn" class="btn btn-secondary filter-btn" onclick="toggleFilters()">
+          <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+          </svg>
+        </button>
+      </div>
+      
+      <!-- Collapsible Filters -->
+      <div id="filtersSection" style="display: none; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(0, 0, 0, 0.06);">
+        <div class="grid grid-3 gap-md">
+          <!-- Event Type Filter -->
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: 500; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.5rem;">Event Type</label>
+            <select id="typeFilter" class="input">
+              <option value="all">All Types</option>
+              <option value="free">Free for All</option>
+              <option value="limited">Limited Seats</option>
+            </select>
+          </div>
+          
+          <!-- Organizer Filter -->
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: 500; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.5rem;">Organizer</label>
+            <select id="organizerFilter" class="input">
+              <option value="all">All Organizers</option>
+              {% if organizers %}
+                {% for organizer_name, organizer_value in organizers %}
+                <option value="{{ organizer_value }}">{{ organizer_name }}</option>
+                {% endfor %}
+              {% endif %}
+            </select>
+          </div>
+          
+          <!-- Status Filter -->
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: 500; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.5rem;">Registration Status</label>
+            <select id="statusFilter" class="input">
+              <option value="all">All Events</option>
+              <option value="available">Available</option>
+              <option value="registered">Already Registered</option>
+              <option value="full">Event Full</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Results Count -->
+      <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(0, 0, 0, 0.06);">
+        <p style="font-size: 0.9rem; color: var(--color-text-secondary);">
+          Showing <span id="resultCount" style="font-weight: 600; color: var(--color-accent);">{{ events|length }}</span> of <span style="font-weight: 600; color: var(--color-text-primary);">{{ events|length }}</span> events
+        </p>
+      </div>
+    </div>
+
+    <!-- Events Grid -->
+    <div id="eventsGrid" class="grid grid-2 gap-lg">
+      {% for event in events %}
+      <div class="event-card stagger-item"
+           data-event-name="{{ event.event_name|lower }}"
+           data-event-type="{% if event.is_free_for_all %}free{% else %}limited{% endif %}"
+           data-organizer="{% if event.users and event.users.role == 'osas' %}osas{% else %}{{ event.users.department_name|lower|replace(' ', '_') if event.users and event.users.department_name else 'unknown' }}{% endif %}"
+           data-status="{% if event.has_registered %}registered{% elif event.is_full %}full{% else %}available{% endif %}">
+        
+        <div class="event-card-header">
+          <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 0.75rem;">
+            <h3 class="event-card-title">{{ event.event_name }}</h3>
+            <div style="display: flex; gap: 0.5rem; flex-shrink: 0;">
+              {% if event.display_status == 'Ongoing' %}
+              <span class="badge badge-error" style="animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;">🔴 Ongoing</span>
+              {% endif %}
+              {% if event.is_free_for_all %}
+              <span class="badge badge-success">Free for All</span>
+              {% else %}
+              <span class="badge badge-info">Limited Seats</span>
+              {% endif %}
+            </div>
+          </div>
+          <p class="event-card-description">{{ event.description or 'No description available' }}</p>
+        </div>
+
+        <div class="event-card-details">
+          <div class="event-detail">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+            <span>{{ event.date }}</span>
+          </div>
+          <div class="event-detail">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <span>{{ event.start_time|time_12hr }} - {{ event.end_time|time_12hr }}</span>
+          </div>
+          <div class="event-detail">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+            </svg>
+            <span>{{ event.location }}</span>
+          </div>
+          <div class="event-detail">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+            </svg>
+            <span>{% if event.users %}{% if event.users.role == 'osas' %}OSAS{% else %}{{ event.users.department_name }}{% endif %}{% else %}Department{% endif %}</span>
+          </div>
+        </div>
+
+        <div class="event-card-footer">
+          {% if event.is_limited %}
+          <div style="font-size: 0.9rem; color: var(--color-text-secondary);">
+            <span style="font-weight: 600; color: var(--color-accent);">{{ event.available_seats }}</span> seats remaining
+          </div>
+          {% else %}
+          <div style="font-size: 0.9rem; color: var(--color-text-secondary);">Open to all students</div>
+          {% endif %}
+
+          <div>
+            {% if event.has_registered %}
+            <span class="badge badge-success">✓ Registered</span>
+            {% elif event.is_full %}
+            <span class="badge" style="background: var(--color-bg-primary); color: var(--color-text-tertiary);">Event Full</span>
+            {% else %}
+            <button onclick='showRegistrationModal({{ event|tojson }})' class="btn btn-primary btn-sm">
+              Register
+            </button>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    
+    <!-- No Results Message -->
+    <div id="noResults" class="empty-state" style="display: none;">
+      <div class="empty-state-icon">🔍</div>
+      <h2 class="empty-state-title">No Events Found</h2>
+      <p class="empty-state-text">Try adjusting your search or filters</p>
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-state-icon">📅</div>
+      <h2 class="empty-state-title">No Events Available</h2>
+      <p class="empty-state-text">There are no upcoming events at the moment. Check back later!</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Registration Confirmation Modal -->
+<div id="registrationModal" class="modal-overlay" style="display: none;">
+  <div class="modal">
+    <div class="modal-header">
+      <div style="display: flex; align-items: flex-start; gap: 1rem;">
+        <div style="width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: var(--color-accent-light); flex-shrink: 0;">
+          <svg style="width: 24px; height: 24px; color: var(--color-accent-dark);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+        </div>
+        <div style="flex: 1;">
+          <h3 class="modal-title">Confirm Registration</h3>
+          <p style="font-size: 0.9rem; color: var(--color-text-secondary); margin-top: 0.25rem;">Please review the event details before registering</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="modal-body">
+      <div style="background: var(--color-bg-primary); border-radius: var(--radius-md); padding: 1.25rem; margin-bottom: 1.5rem;">
+        <div style="margin-bottom: 1rem;">
+          <h4 id="modalEventName" style="font-size: 1.25rem; font-weight: 500; margin-bottom: 0.5rem;"></h4>
+          <p id="modalEventDescription" style="font-size: 0.9rem; color: var(--color-text-secondary);"></p>
+        </div>
+        
+        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+          <div style="display: flex; align-items: center; font-size: 0.9rem; color: var(--color-text-secondary);">
+            <svg style="width: 18px; height: 18px; margin-right: 0.75rem; color: var(--color-accent); flex-shrink: 0;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+            <span style="font-weight: 500; margin-right: 0.5rem;">Date:</span>
+            <span id="modalEventDate"></span>
+          </div>
+          <div style="display: flex; align-items: center; font-size: 0.9rem; color: var(--color-text-secondary);">
+            <svg style="width: 18px; height: 18px; margin-right: 0.75rem; color: var(--color-accent); flex-shrink: 0;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <span style="font-weight: 500; margin-right: 0.5rem;">Time:</span>
+            <span id="modalEventTime"></span>
+          </div>
+          <div style="display: flex; align-items: center; font-size: 0.9rem; color: var(--color-text-secondary);">
+            <svg style="width: 18px; height: 18px; margin-right: 0.75rem; color: var(--color-accent); flex-shrink: 0;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+            </svg>
+            <span style="font-weight: 500; margin-right: 0.5rem;">Location:</span>
+            <span id="modalEventLocation"></span>
+          </div>
+          <div style="display: flex; align-items: center; font-size: 0.9rem; color: var(--color-text-secondary);">
+            <svg style="width: 18px; height: 18px; margin-right: 0.75rem; color: var(--color-accent); flex-shrink: 0;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+            </svg>
+            <span style="font-weight: 500; margin-right: 0.5rem;">Organizer:</span>
+            <span id="modalEventDepartment"></span>
+          </div>
+          <div id="modalSeatsInfo" style="display: none; align-items: center; font-size: 0.9rem; color: var(--color-text-secondary);">
+            <svg style="width: 18px; height: 18px; margin-right: 0.75rem; color: var(--color-accent); flex-shrink: 0;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+            </svg>
+            <span style="font-weight: 500; margin-right: 0.5rem;">Available Seats:</span>
+            <span id="modalEventSeats" style="font-weight: 600; color: var(--color-accent);"></span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Requirements Section -->
+      <div id="modalRequirements" style="display: none; background: var(--color-warning-bg); border: 1px solid var(--color-warning); border-radius: var(--radius-md); padding: 1.25rem; margin-bottom: 1.5rem;">
+        <div style="display: flex; align-items: flex-start; gap: 0.75rem;">
+          <svg style="width: 20px; height: 20px; color: var(--color-warning); flex-shrink: 0; margin-top: 0.25rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          <div style="flex: 1;">
+            <h4 style="font-weight: 600; color: var(--color-text-primary); margin-bottom: 0.5rem;">Requirements Needed</h4>
+            <p style="font-size: 0.9rem; color: var(--color-text-secondary); margin-bottom: 0.75rem;">You will need to submit these requirements to the department:</p>
+            <ul id="modalRequirementsList" style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.5rem;">
+            </ul>
+          </div>
+        </div>
+      </div>
+      
+      <form id="registrationForm" method="POST" action="">
+        <div style="display: flex; gap: 0.75rem;">
+          <button type="button" onclick="closeRegistrationModal()" class="btn btn-ghost" style="flex: 1;">
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-primary" style="flex: 1;">
+            Confirm
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+// Toggle Filters
+function toggleFilters() {
+  const filtersSection = document.getElementById('filtersSection');
+  const filterBtn = document.getElementById('filterToggleBtn');
+  
+  if (filtersSection.style.display === 'none' || filtersSection.style.display === '') {
+    filtersSection.style.display = 'block';
+    filterBtn.style.background = 'linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-dark) 100%)';
+    filterBtn.style.color = 'white';
+  } else {
+    filtersSection.style.display = 'none';
+    filterBtn.style.background = '';
+    filterBtn.style.color = '';
+  }
+}
+
+// Search and Filter Functionality
+const allEvents = document.querySelectorAll('#eventsGrid > div');
+const totalEvents = allEvents.length;
+
+function filterEvents() {
+  const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+  const typeFilter = document.getElementById('typeFilter').value;
+  const organizerFilter = document.getElementById('organizerFilter').value;
+  const statusFilter = document.getElementById('statusFilter').value;
+  
+  let visibleCount = 0;
+  
+  allEvents.forEach(eventCard => {
+    const eventName = eventCard.dataset.eventName || '';
+    const eventType = eventCard.dataset.eventType || '';
+    const organizer = eventCard.dataset.organizer || '';
+    const status = eventCard.dataset.status || '';
+    
+    const matchesSearch = eventName.includes(searchTerm);
+    const matchesType = typeFilter === 'all' || eventType === typeFilter;
+    const matchesOrganizer = organizerFilter === 'all' || organizer === organizerFilter;
+    const matchesStatus = statusFilter === 'all' || status === statusFilter;
+    
+    if (matchesSearch && matchesType && matchesOrganizer && matchesStatus) {
+      eventCard.style.display = 'flex';
+      visibleCount++;
+    } else {
+      eventCard.style.display = 'none';
+    }
+  });
+  
+  document.getElementById('resultCount').textContent = visibleCount;
+  
+  const noResults = document.getElementById('noResults');
+  const eventsGrid = document.getElementById('eventsGrid');
+  if (visibleCount === 0) {
+    noResults.style.display = 'block';
+    eventsGrid.style.display = 'none';
+  } else {
+    noResults.style.display = 'none';
+    eventsGrid.style.display = 'grid';
+  }
+}
+
+document.getElementById('searchInput').addEventListener('input', filterEvents);
+document.getElementById('typeFilter').addEventListener('change', filterEvents);
+document.getElementById('organizerFilter').addEventListener('change', filterEvents);
+document.getElementById('statusFilter').addEventListener('change', filterEvents);
+
+function showRegistrationModal(event) {
+  const modal = document.getElementById('registrationModal');
+  const form = document.getElementById('registrationForm');
+  
+  form.action = '/student/events/register/' + event.id;
+  
+  document.getElementById('modalEventName').textContent = event.event_name;
+  document.getElementById('modalEventDescription').textContent = event.description || 'No description available';
+  document.getElementById('modalEventDate').textContent = event.date;
+  document.getElementById('modalEventTime').textContent = event.start_time + ' - ' + event.end_time;
+  document.getElementById('modalEventLocation').textContent = event.location;
+  
+  const organizer = event.users && event.users.role === 'osas' ? 'OSAS' : (event.users && event.users.department_name ? event.users.department_name : 'Department');
+  document.getElementById('modalEventDepartment').textContent = organizer;
+  
+  const seatsInfo = document.getElementById('modalSeatsInfo');
+  if (event.is_limited && event.available_seats !== null) {
+    seatsInfo.style.display = 'flex';
+    document.getElementById('modalEventSeats').textContent = event.available_seats;
+  } else {
+    seatsInfo.style.display = 'none';
+  }
+  
+  const requirementsSection = document.getElementById('modalRequirements');
+  const requirementsList = document.getElementById('modalRequirementsList');
+  
+  if (event.requirements && event.requirements.length > 0) {
+    requirementsSection.style.display = 'block';
+    requirementsList.innerHTML = event.requirements.map(function(req) {
+      return '<li style="display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.9rem; color: var(--color-text-secondary);"><svg style="width: 16px; height: 16px; color: var(--color-warning); flex-shrink: 0; margin-top: 0.25rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg><div><span style="font-weight: 500;">' + req.requirement_name + '</span>' + (req.description ? '<p style="font-size: 0.85rem; margin-top: 0.25rem;">' + req.description + '</p>' : '') + '</div></li>';
+    }).join('');
+  } else {
+    requirementsSection.style.display = 'none';
+  }
+  
+  modal.style.display = 'flex';
+  setTimeout(function() { modal.classList.add('show'); }, 50);
+}
+
+function closeRegistrationModal() {
+  const modal = document.getElementById('registrationModal');
+  modal.classList.remove('show');
+  setTimeout(function() { modal.style.display = 'none'; }, 300);
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeRegistrationModal();
+});
+
+document.getElementById('registrationModal').addEventListener('click', function(e) {
+  if (e.target === this) closeRegistrationModal();
+});
+</script>
+{% endblock %}

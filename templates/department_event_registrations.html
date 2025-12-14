@@ -3,129 +3,161 @@
 {% block title %}Event Registrations - CESMS{% endblock %}
 
 {% block content %}
-<!-- Event Registrations Page Styles -->
-<link rel="stylesheet" href="{{ url_for('static', filename='css/event-registrations.css') }}?v=1">
-
-<div class="event-registrations-container">
-  <!-- Flash Messages -->
-
-
-  <!-- Events Overview -->
-  <div class="events-overview">
-    {% if events %}
-      <div class="events-grid">
-        {% for event in events %}
-        <div class="event-card">
-          <div class="event-header">
-            <div class="event-title-section">
-              <h3 class="event-title">{{ event.event_name }}</h3>
-              <div class="event-meta">
-                <span class="event-date">{{ event.date }}</span>
-                <span class="event-time">{{ event.start_time }} - {{ event.end_time }}</span>
-              </div>
-            </div>
-            <div class="event-status">
-              <span class="status-badge status-{{ event.status.lower() }}">
-                {{ event.status }}
-              </span>
-            </div>
-          </div>
-          
-          <div class="event-content">
-            <div class="event-details">
-              <div class="detail-item">
-                <span class="detail-icon">📍</span>
-                <span class="detail-label">Location:</span>
-                <span class="detail-value">{{ event.location }}</span>
-              </div>
-              <div class="detail-item">
-                <span class="detail-icon">👤</span>
-                <span class="detail-label">Participant Limit:</span>
-                <span class="detail-value">
-                  {% if event.participant_limit %}
-                    {{ event.participant_limit }}
-                  {% else %}
-                    Unlimited
-                  {% endif %}
-                </span>
-              </div>
-            </div>
-          </div>
-          
-          <div class="registration-summary">
-            <h4 class="summary-title">Registration Summary</h4>
-            <div class="summary-stats">
-              <div class="stat-item">
-                <div class="stat-icon">📊</div>
-                <div class="stat-content">
-                  <span class="stat-label">Total</span>
-                  <span class="stat-value">{{ event.total_registrations }}</span>
-                </div>
-              </div>
-              <div class="stat-item">
-                <div class="stat-icon">⏳</div>
-                <div class="stat-content">
-                  <span class="stat-label">Pending</span>
-                  <span class="stat-value pending">{{ event.registration_counts.Pending }}</span>
-                </div>
-              </div>
-              <div class="stat-item">
-                <div class="stat-icon">✅</div>
-                <div class="stat-content">
-                  <span class="stat-label">Approved</span>
-                  <span class="stat-value approved">{{ event.registration_counts.Approved }}</span>
-                </div>
-              </div>
-              <div class="stat-item">
-                <div class="stat-icon">🔄</div>
-                <div class="stat-content">
-                  <span class="stat-label">Auto-Approved</span>
-                  <span class="stat-value auto-approved">{{ event.registration_counts['Auto-Approved'] }}</span>
-                </div>
-              </div>
-              <div class="stat-item">
-                <div class="stat-icon">❌</div>
-                <div class="stat-content">
-                  <span class="stat-label">Rejected</span>
-                  <span class="stat-value rejected">{{ event.registration_counts.Rejected }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <div class="event-actions">
-            <a href="{{ url_for('event_registrations.view_event_registration_details', event_id=event.id) }}" 
-               class="btn btn-primary">
-              <span class="btn-icon">👁️</span>
-              View Registrations
-            </a>
-            
-          </div>
-        </div>
-        {% endfor %}
-      </div>
-      
-    {% else %}
-      <div class="no-events">
-        <div class="no-events-content">
-          <div class="no-events-icon">
-            <span class="icon">📅</span>
-          </div>
-          <h3 class="no-events-title">No Active Events</h3>
-          <p class="no-events-subtitle">
-            You don't have any active events yet. Submit an event request to get started.
-          </p>
-          <a href="{{ url_for('event_request.request_event') }}" class="btn btn-primary btn-lg">
-            <span class="btn-icon">➕</span>
-            Submit Event Request
-          </a>
-        </div>
-      </div>
-    {% endif %}
+<!-- Premium Header -->
+<div class="bg-white border-b border-gray-200 py-8 sm:py-12 lg:py-16 px-4 sm:px-6 lg:px-8 mb-8 sm:mb-12">
+  <div class="max-w-7xl mx-auto">
+    <h1 class="text-3xl sm:text-4xl lg:text-5xl font-light mb-2 sm:mb-4 tracking-tight text-gray-900">Event Registrations</h1>
+    <p class="text-base sm:text-lg lg:text-xl text-gray-600">View and manage registrations for your events</p>
   </div>
 </div>
 
-<!-- Event Registrations Page JavaScript -->
-<script src="{{ url_for('static', filename='js/event-registrations.js') }}?v=1"></script>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8 sm:pb-12 lg:pb-16">
+  <!-- Status Filter -->
+  <div class="mb-6 sm:mb-8">
+    <div class="flex flex-wrap gap-2 sm:gap-3">
+      <a href="{{ url_for('event_registrations.view_event_registrations', status='all') }}" 
+         class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200
+         {% if status_filter == 'all' %}bg-blue-600 text-white shadow-lg{% else %}bg-white text-gray-700 border border-gray-200 hover:bg-gray-50{% endif %}">
+        All ({{ status_counts.Active + status_counts.Ongoing + status_counts.Completed + status_counts.Cancelled }})
+      </a>
+      <a href="{{ url_for('event_registrations.view_event_registrations', status='active') }}" 
+         class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200
+         {% if status_filter == 'active' %}bg-green-600 text-white shadow-lg{% else %}bg-white text-gray-700 border border-gray-200 hover:bg-gray-50{% endif %}">
+        Active ({{ status_counts.Active }})
+      </a>
+      <a href="{{ url_for('event_registrations.view_event_registrations', status='ongoing') }}" 
+         class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200
+         {% if status_filter == 'ongoing' %}bg-purple-600 text-white shadow-lg{% else %}bg-white text-gray-700 border border-gray-200 hover:bg-gray-50{% endif %}">
+        Ongoing ({{ status_counts.Ongoing }})
+      </a>
+      <a href="{{ url_for('event_registrations.view_event_registrations', status='completed') }}" 
+         class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200
+         {% if status_filter == 'completed' %}bg-gray-600 text-white shadow-lg{% else %}bg-white text-gray-700 border border-gray-200 hover:bg-gray-50{% endif %}">
+        Completed ({{ status_counts.Completed }})
+      </a>
+      <a href="{{ url_for('event_registrations.view_event_registrations', status='cancelled') }}" 
+         class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200
+         {% if status_filter == 'cancelled' %}bg-red-600 text-white shadow-lg{% else %}bg-white text-gray-700 border border-gray-200 hover:bg-gray-50{% endif %}">
+        Cancelled ({{ status_counts.Cancelled }})
+      </a>
+    </div>
+  </div>
+
+  {% if events %}
+    <div class="grid grid-cols-1 gap-4 sm:gap-6">
+      {% for event in events %}
+      <div class="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300">
+        <!-- Event Header -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
+          <div class="flex-1">
+            <h3 class="text-lg sm:text-xl font-semibold text-gray-900 mb-2">{{ event.event_name }}</h3>
+            <div class="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-600">
+              <span class="flex items-center gap-1">
+                <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+                {{ event.date }}
+              </span>
+              <span class="flex items-center gap-1">
+                <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                {{ event.start_time|time_12hr }} - {{ event.end_time|time_12hr }}
+              </span>
+            </div>
+          </div>
+          <span class="inline-flex items-center px-3 py-1 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold
+            {% if event.display_status == 'Active' %}bg-green-100 text-green-800
+            {% elif event.display_status == 'Ongoing' %}bg-purple-100 text-purple-800
+            {% elif event.display_status == 'Completed' %}bg-gray-100 text-gray-800
+            {% elif event.display_status == 'Cancelled' %}bg-red-100 text-red-800
+            {% else %}bg-blue-100 text-blue-800{% endif %}">
+            {{ event.display_status }}
+          </span>
+        </div>
+
+        <!-- Event Details -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
+          <div class="p-3 sm:p-4 bg-gray-50 rounded-lg sm:rounded-xl">
+            <p class="text-xs text-gray-600 mb-1">Location</p>
+            <p class="text-sm sm:text-base font-semibold text-gray-900">{{ event.location }}</p>
+          </div>
+          <div class="p-3 sm:p-4 bg-gray-50 rounded-lg sm:rounded-xl">
+            <p class="text-xs text-gray-600 mb-1">Participant Limit</p>
+            <p class="text-sm sm:text-base font-semibold text-gray-900">
+              {% if event.participant_limit %}{{ event.participant_limit }}{% else %}Unlimited{% endif %}
+            </p>
+          </div>
+        </div>
+
+        <!-- Registration Stats -->
+        {% if event.participant_limit %}
+        <!-- Limited Event: 4 cards (no Auto) -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-4 sm:mb-6">
+          <div class="p-2 sm:p-3 bg-gray-50 rounded-lg text-center">
+            <p class="text-lg sm:text-xl font-bold text-gray-900">{{ event.total_registrations }}</p>
+            <p class="text-xs text-gray-600">Total</p>
+          </div>
+          <div class="p-2 sm:p-3 bg-yellow-50 rounded-lg text-center">
+            <p class="text-lg sm:text-xl font-bold text-yellow-800">{{ event.registration_counts.Pending }}</p>
+            <p class="text-xs text-yellow-700">Pending</p>
+          </div>
+          <div class="p-2 sm:p-3 bg-green-50 rounded-lg text-center">
+            <p class="text-lg sm:text-xl font-bold text-green-800">{{ event.registration_counts.Approved }}</p>
+            <p class="text-xs text-green-700">Approved</p>
+          </div>
+          <div class="p-2 sm:p-3 bg-red-50 rounded-lg text-center">
+            <p class="text-lg sm:text-xl font-bold text-red-800">{{ event.registration_counts.Rejected }}</p>
+            <p class="text-xs text-red-700">Rejected</p>
+          </div>
+        </div>
+        {% else %}
+        <!-- Free-for-All Event: 5 cards (with Auto) -->
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-3 mb-4 sm:mb-6">
+          <div class="p-2 sm:p-3 bg-gray-50 rounded-lg text-center">
+            <p class="text-lg sm:text-xl font-bold text-gray-900">{{ event.total_registrations }}</p>
+            <p class="text-xs text-gray-600">Total</p>
+          </div>
+          <div class="p-2 sm:p-3 bg-yellow-50 rounded-lg text-center">
+            <p class="text-lg sm:text-xl font-bold text-yellow-800">{{ event.registration_counts.Pending }}</p>
+            <p class="text-xs text-yellow-700">Pending</p>
+          </div>
+          <div class="p-2 sm:p-3 bg-green-50 rounded-lg text-center">
+            <p class="text-lg sm:text-xl font-bold text-green-800">{{ event.registration_counts.Approved }}</p>
+            <p class="text-xs text-green-700">Approved</p>
+          </div>
+          <div class="p-2 sm:p-3 bg-blue-50 rounded-lg text-center">
+            <p class="text-lg sm:text-xl font-bold text-blue-800">{{ event.registration_counts['Auto-Approved'] }}</p>
+            <p class="text-xs text-blue-700">Auto</p>
+          </div>
+          <div class="p-2 sm:p-3 bg-red-50 rounded-lg text-center">
+            <p class="text-lg sm:text-xl font-bold text-red-800">{{ event.registration_counts.Rejected }}</p>
+            <p class="text-xs text-red-700">Rejected</p>
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Action Button -->
+        <a href="{{ url_for('event_registrations.view_event_registration_details', event_id=event.id) }}" 
+           class="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 sm:px-5 sm:py-3 rounded-lg sm:rounded-xl transition-all duration-300 text-sm sm:text-base font-semibold">
+          View Details
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="text-center py-12 sm:py-16">
+      <svg class="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 mx-auto mb-4 sm:mb-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+      </svg>
+      <h3 class="text-lg sm:text-xl font-semibold text-gray-900 mb-2">No Active Events</h3>
+      <p class="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">You don't have any active events yet. Submit an event request to get started.</p>
+      <a href="{{ url_for('event_request.request_event') }}" 
+         class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 sm:px-6 sm:py-3 rounded-xl transition-all duration-300 text-sm sm:text-base font-semibold">
+        Request Event
+      </a>
+    </div>
+  {% endif %}
+</div>
 
 {% endblock %}

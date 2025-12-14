@@ -1,5 +1,6 @@
 from flask import render_template, request, redirect, url_for, flash, session
 from models.event_registrations import EventRegistrations
+from models.event_management import EventManagement
 from models.user import User
 
 def view_event_registrations():
@@ -24,20 +25,39 @@ def view_event_registrations():
     try:
         # Get all events for this department (including cancelled)
         events_response = EventRegistrations.get_all_department_events(user["id"])
-        events = events_response.data if events_response.data else []
+        all_events = events_response.data if events_response.data else []
         
-        # Get registration counts for each event
+        # Add display_status and registration counts for each event
         events_with_counts = []
-        for event in events:
+        for event in all_events:
+            # Add display status
+            event["display_status"] = EventManagement.get_event_display_status(event)
+            
+            # Get registration counts
             counts = EventRegistrations.get_registration_counts_by_event(event["id"])
             event["registration_counts"] = counts
             event["total_registrations"] = sum(counts.values())
             events_with_counts.append(event)
         
+        # Calculate status counts for filter
+        status_counts = {"Active": 0, "Ongoing": 0, "Completed": 0, "Cancelled": 0}
+        for event in events_with_counts:
+            display_status = event["display_status"]
+            status_counts[display_status] = status_counts.get(display_status, 0) + 1
+        
+        # Get filter from query parameters
+        status_filter = request.args.get("status", "all")
+        
+        # Filter events if needed
+        if status_filter != "all":
+            events_with_counts = [e for e in events_with_counts if e["display_status"].lower() == status_filter.lower()]
+        
         return render_template(
             "department_event_registrations.html",
             user=user,
-            events=events_with_counts
+            events=events_with_counts,
+            status_counts=status_counts,
+            status_filter=status_filter
         )
         
     except Exception as e:
@@ -45,7 +65,9 @@ def view_event_registrations():
         return render_template(
             "department_event_registrations.html",
             user=user,
-            events=[]
+            events=[],
+            status_counts={"Active": 0, "Ongoing": 0, "Completed": 0, "Cancelled": 0},
+            status_filter="all"
         )
 
 

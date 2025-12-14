@@ -3,192 +3,257 @@
 {% block title %}Edit Event Request - CESMS{% endblock %}
 
 {% block content %}
-
-<link rel="stylesheet" href="{{ url_for('static', filename='css/edit-request.css') }}?v=1">
-
-
-<div class="page-header">
-  <div class="header-content">
-    <h1>Edit Event Request</h1>
-    <p>Modify your event information before it's approved</p>
+<!-- Premium Header -->
+<div class="bg-white border-b border-gray-200 py-8 sm:py-12 lg:py-16 px-4 sm:px-6 lg:px-8 mb-8 sm:mb-12">
+  <div class="max-w-7xl mx-auto">
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div>
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-light mb-2 sm:mb-4 tracking-tight text-gray-900">Edit Event Request</h1>
+        <p class="text-base sm:text-lg lg:text-xl text-gray-600">Modify your event information before it's approved</p>
+      </div>
+      <a href="{{ url_for('request_status.view_request_status') }}" 
+         class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 sm:px-5 sm:py-3 rounded-lg sm:rounded-xl transition-all duration-300 text-sm sm:text-base font-semibold">
+        Back to Requests
+      </a>
+    </div>
   </div>
-  <a href="{{ url_for('request_status.view_request_status') }}" class="btn-back">
-    ← Back to Requests
-  </a>
 </div>
 
-<div class="edit-request-container">
-  <div class="form-card">
-    <form method="POST" id="editRequestForm" novalidate>
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-8 sm:pb-12 lg:pb-16">
+  <form method="POST" id="editRequestForm" novalidate>
+    <!-- Event Information -->
+    <div class="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 shadow-sm border border-gray-100 mb-6 sm:mb-8">
+      <h2 class="text-lg sm:text-xl lg:text-2xl font-semibold text-gray-900 mb-2">Event Information</h2>
+      <p class="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">Basic details about your event</p>
       
-      <!-- Event Information Section -->
-      <div class="form-section">
-        <div class="section-header">
-          <div class="section-icon">📝</div>
-          <div class="section-title">
-            <h2>Event Information</h2>
-            <p>Basic details about your event</p>
-          </div>
-        </div>
-        
-        <div class="form-group">
-          <label for="event_name" class="form-label">
-            Event Name
-            <span class="required">*</span>
+      <div class="space-y-4 sm:space-y-6">
+        <div>
+          <label for="event_name" class="block text-sm font-semibold text-gray-900 mb-2">
+            Event Name <span class="text-red-600">*</span>
           </label>
-          <input 
-            type="text" 
-            id="event_name" 
-            name="event_name" 
-            class="form-control" 
-            required 
-            value="{{ request_data.event_name }}"
-            placeholder="Enter event name"
-            autocomplete="off"
-          >
-          <small class="form-hint">Give your event a clear and descriptive name</small>
+          <input type="text" 
+                 id="event_name" 
+                 name="event_name" 
+                 class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
+                 required 
+                 value="{{ request_data.event_name }}"
+                 placeholder="Enter event name"
+                 autocomplete="off">
+          <p class="text-xs sm:text-sm text-gray-600 mt-1">Give your event a clear and descriptive name</p>
         </div>
 
-        <div class="form-group">
-          <label for="description" class="form-label">
-            Event Description
-          </label>
-          <textarea 
-            id="description" 
-            name="description" 
-            class="form-control" 
-            rows="4" 
-            placeholder="Provide details about the event (optional)"
-          >{{ request_data.description or '' }}</textarea>
-          <small class="form-hint">Optional: Add more information about your event</small>
+        <div>
+          <label for="description" class="block text-sm font-semibold text-gray-900 mb-2">Event Description</label>
+          <textarea id="description" 
+                    name="description" 
+                    class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
+                    rows="4" 
+                    placeholder="Provide details about the event (optional)">{{ request_data.description or '' }}</textarea>
+          <p class="text-xs sm:text-sm text-gray-600 mt-1">Optional: Add more information about your event</p>
         </div>
       </div>
+    </div>
 
-      <!-- Location & Timing Section -->
-      <div class="form-section">
-        <div class="section-header">
-          <div class="section-icon">📍</div>
-          <div class="section-title">
-            <h2>Location & Timing</h2>
-            <p>When and where will the event take place</p>
-          </div>
-        </div>
+    <!-- Location & Timing -->
+    <div class="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 shadow-sm border border-gray-100 mb-6 sm:mb-8">
+      <h2 class="text-lg sm:text-xl lg:text-2xl font-semibold text-gray-900 mb-2">Location & Timing</h2>
+      <p class="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">When and where will the event take place</p>
 
-        <div class="form-group">
-          <label for="location" class="form-label">
-            Event Location
-            <span class="required">*</span>
+      <div class="space-y-4 sm:space-y-6">
+        <div>
+          <label for="location" class="block text-sm font-semibold text-gray-900 mb-2">
+            Event Location <span class="text-red-600">*</span>
           </label>
-          <input 
-            type="text" 
-            id="location" 
-            name="location" 
-            class="form-control" 
-            required 
-            value="{{ request_data.location }}"
-            placeholder="Enter event location"
-            autocomplete="off"
-          >
-          <small class="form-hint">Specify the venue or location</small>
+          <input type="text" 
+                 id="location" 
+                 name="location" 
+                 class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
+                 required 
+                 value="{{ request_data.location }}"
+                 placeholder="Enter event location"
+                 autocomplete="off">
+          <p class="text-xs sm:text-sm text-gray-600 mt-1">Specify the venue or location</p>
         </div>
 
-        <div class="form-row">
-          <div class="form-group">
-            <label for="date" class="form-label">
-              <span class="label-icon">📅</span>
-              Event Date
-              <span class="required">*</span>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label for="date" class="block text-sm font-semibold text-gray-900 mb-2">
+              Event Date <span class="text-red-600">*</span>
             </label>
-            <input 
-              type="date" 
-              id="date" 
-              name="date" 
-              class="form-control" 
-              required
-              value="{{ request_data.date }}"
-            >
-            <small class="form-hint">Select event date</small>
+            <input type="date" 
+                   id="date" 
+                   name="date" 
+                   class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
+                   required
+                   value="{{ request_data.date }}">
+            <p class="text-xs sm:text-sm text-gray-600 mt-1">Select event date</p>
           </div>
 
-          <div class="form-group">
-            <label for="start_time" class="form-label">
-              <span class="label-icon">🕐</span>
-              Start Time
-              <span class="required">*</span>
+          <div>
+            <label for="start_time" class="block text-sm font-semibold text-gray-900 mb-2">
+              Start Time <span class="text-red-600">*</span>
             </label>
-            <input 
-              type="time" 
-              id="start_time" 
-              name="start_time" 
-              class="form-control" 
-              required
-              value="{{ request_data.start_time }}"
-            >
-            <small class="form-hint">Event start</small>
+            <input type="time" 
+                   id="start_time" 
+                   name="start_time" 
+                   class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
+                   required
+                   value="{{ request_data.start_time }}">
+            <p class="text-xs sm:text-sm text-gray-600 mt-1">Event start</p>
           </div>
 
-          <div class="form-group">
-            <label for="end_time" class="form-label">
-              <span class="label-icon">🕐</span>
-              End Time
-              <span class="required">*</span>
+          <div>
+            <label for="end_time" class="block text-sm font-semibold text-gray-900 mb-2">
+              End Time <span class="text-red-600">*</span>
             </label>
-            <input 
-              type="time" 
-              id="end_time" 
-              name="end_time" 
-              class="form-control" 
-              required
-              value="{{ request_data.end_time }}"
-            >
-            <small class="form-hint">Event end</small>
+            <input type="time" 
+                   id="end_time" 
+                   name="end_time" 
+                   class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
+                   required
+                   value="{{ request_data.end_time }}">
+            <p class="text-xs sm:text-sm text-gray-600 mt-1">Event end</p>
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- Event Settings Section -->
-      <div class="form-section">
-        <div class="section-header">
-          <div class="section-icon">⚙️</div>
-          <div class="section-title">
-            <h2>Event Settings</h2>
-            <p>Additional configurations for your event</p>
-          </div>
-        </div>
+    <!-- Event Settings -->
+    <div class="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 shadow-sm border border-gray-100 mb-6 sm:mb-8">
+      <h2 class="text-lg sm:text-xl lg:text-2xl font-semibold text-gray-900 mb-2">Event Settings</h2>
+      <p class="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">Additional configurations for your event</p>
 
-        <div class="form-group">
-          <label for="participant_limit" class="form-label">
-            <span class="label-icon">👥</span>
-            Participant Limit
-          </label>
-          <input 
-            type="number" 
-            id="participant_limit" 
-            name="participant_limit" 
-            class="form-control" 
-            min="1" 
-            value="{{ request_data.participant_limit or '' }}"
-            placeholder="Leave empty for unlimited"
-          >
-          <small class="form-hint">Optional: Set maximum number of participants</small>
-        </div>
+      <div>
+        <label for="participant_limit" class="block text-sm font-semibold text-gray-900 mb-2">Participant Limit</label>
+        <input type="number" 
+               id="participant_limit" 
+               name="participant_limit" 
+               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
+               min="1" 
+               value="{{ request_data.participant_limit or '' }}"
+               placeholder="Leave empty for unlimited"
+               onchange="toggleRequirementsSection()">
+        <p class="text-xs sm:text-sm text-gray-600 mt-1">Optional: Set maximum number of participants</p>
+      </div>
+    </div>
+
+    <!-- Requirements Section (Only for Limited Events) -->
+    <div id="requirements-section" class="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 shadow-sm border border-gray-100 mb-6 sm:mb-8" style="display: none;">
+      <h2 class="text-lg sm:text-xl lg:text-2xl font-semibold text-gray-900 mb-2">Registration Requirements</h2>
+      <p class="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">Requirements for students to register (limited events only)</p>
+      
+      <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
+        <p class="text-sm text-blue-800">
+          <strong>Note:</strong> Since this is a limited event, you can specify requirements that students must submit when registering.
+        </p>
       </div>
 
-      <!-- Form Actions -->
-      <div class="form-actions">
-        <button type="submit" class="btn-primary">
-          <span class="btn-icon">💾</span>
-          Update Request
+      <div id="requirements-list" class="space-y-3 mb-4">
+        <!-- Requirements will be added here dynamically -->
+      </div>
+
+      <div class="flex gap-3">
+        <input type="text" 
+               id="requirement-input" 
+               class="flex-1 px-4 py-3 text-sm sm:text-base border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+               placeholder="e.g., Payment Receipt, Waiver Form, ID Copy">
+        <button type="button" 
+                onclick="addRequirement()"
+                class="px-6 py-3 bg-purple-600 text-white text-sm font-semibold rounded-xl hover:bg-purple-700 transition-all duration-200">
+          Add
         </button>
-        <a href="{{ url_for('request_status.view_request_status') }}" class="btn-secondary">
-          <span class="btn-icon">✕</span>
-          Cancel
-        </a>
       </div>
-    </form>
-  </div>
+      
+      <input type="hidden" id="requirements-data" name="requirements">
+    </div>
+
+    <!-- Form Actions -->
+    <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
+      <button type="submit" 
+              class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl transition-all duration-300 text-sm sm:text-base font-semibold">
+        Update Request
+      </button>
+      <a href="{{ url_for('request_status.view_request_status') }}" 
+         class="flex-1 text-center bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-3 rounded-xl transition-all duration-300 text-sm sm:text-base font-semibold">
+        Cancel
+      </a>
+    </div>
+  </form>
 </div>
 
-<script src="{{ url_for('static', filename='js/edit-request.js') }}?v=1"></script>
+<script>
+let requirements = {{ (request_data.requirements|tojson) if request_data.get('requirements') else '[]'|safe }};
+
+document.addEventListener('DOMContentLoaded', function() {
+  // Initialize requirements section visibility
+  toggleRequirementsSection();
+  updateRequirementsList();
+  updateRequirementsData();
+});
+
+function toggleRequirementsSection() {
+  const participantLimit = document.getElementById('participant_limit').value;
+  const requirementsSection = document.getElementById('requirements-section');
+  
+  if (participantLimit && parseInt(participantLimit) > 0) {
+    requirementsSection.style.display = 'block';
+  } else {
+    requirementsSection.style.display = 'none';
+    clearRequirements();
+  }
+}
+
+function addRequirement() {
+  const input = document.getElementById('requirement-input');
+  const requirementName = input.value.trim();
+  
+  if (!requirementName) {
+    alert('Please enter a requirement name');
+    return;
+  }
+  
+  requirements.push(requirementName);
+  updateRequirementsList();
+  updateRequirementsData();
+  input.value = '';
+}
+
+function removeRequirement(index) {
+  requirements.splice(index, 1);
+  updateRequirementsList();
+  updateRequirementsData();
+}
+
+function updateRequirementsList() {
+  const list = document.getElementById('requirements-list');
+  
+  if (requirements.length === 0) {
+    list.innerHTML = '<p class="text-sm text-gray-500 italic">No requirements added yet</p>';
+    return;
+  }
+  
+  list.innerHTML = requirements.map((req, index) => `
+    <div class="flex items-center justify-between bg-gray-50 rounded-lg p-3 border border-gray-200">
+      <span class="text-sm font-medium text-gray-900">${req}</span>
+      <button type="button" 
+              onclick="removeRequirement(${index})"
+              class="text-red-600 hover:text-red-700 text-sm font-semibold">
+        Remove
+      </button>
+    </div>
+  `).join('');
+}
+
+function updateRequirementsData() {
+  document.getElementById('requirements-data').value = JSON.stringify(requirements);
+}
+
+function clearRequirements() {
+  requirements = [];
+  updateRequirementsList();
+  updateRequirementsData();
+  document.getElementById('requirement-input').value = '';
+}
+</script>
 
 {% endblock %}

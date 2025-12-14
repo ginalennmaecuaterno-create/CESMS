@@ -1,0 +1,260 @@
+{% extends "base_osas.html" %}
+
+{% block title %}Verify Requirements{% endblock %}
+
+{% block content %}
+<!-- Premium Header -->
+<div class="bg-white border-b border-gray-200 py-16 px-8 mb-12">
+  <div class="max-w-7xl mx-auto">
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-5xl font-light mb-4 tracking-tight text-gray-900">Verify Requirements</h1>
+        <p class="text-xl text-gray-600">{{ registration.users.full_name }} ({{ registration.users.student_id }})</p>
+      </div>
+      <a href="{{ url_for('osas_event_management.view_registration_details', event_id=event_id) }}" 
+         class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl transition-all duration-300 shadow-sm">
+        Back to Registrations
+      </a>
+    </div>
+  </div>
+</div>
+
+<div class="max-w-7xl mx-auto px-8 pb-16">
+  {% if requirements %}
+  <!-- Requirements Checklist -->
+  <div class="space-y-4 mb-12">
+    {% for req in requirements %}
+    <div class="bg-white rounded-2xl p-8 shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 requirement-item" data-requirement-id="{{ req.id }}">
+      <div class="flex items-start justify-between gap-8">
+        <div class="flex-1">
+          <h3 class="text-2xl font-semibold text-gray-900 mb-3">{{ req.requirement_name }}</h3>
+          {% if req.description %}
+          <p class="text-gray-600 mb-4 leading-relaxed">{{ req.description }}</p>
+          {% endif %}
+          
+          <div class="flex items-center gap-4 flex-wrap">
+            <span class="status-badge inline-flex items-center gap-2 px-4 py-2 rounded-xl font-medium {% if req.department_verified %}bg-green-50 text-green-700{% else %}bg-yellow-50 text-yellow-700{% endif %}">
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                {% if req.department_verified %}
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                {% else %}
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                {% endif %}
+              </svg>
+              <span class="status-text">{% if req.department_verified %}Verified{% else %}Not Verified{% endif %}</span>
+            </span>
+            {% if req.verified_at %}
+            <span class="status-time text-sm text-gray-500">{{ req.verified_at|datetime_readable }}</span>
+            {% endif %}
+          </div>
+        </div>
+        
+        <div class="flex items-center">
+          <label class="flex items-center gap-3 {% if not req.department_verified %}cursor-pointer{% else %}cursor-not-allowed opacity-60{% endif %} group">
+            <input type="checkbox" 
+                   class="verify-checkbox w-6 h-6 rounded-lg border-2 border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all {% if not req.department_verified %}cursor-pointer{% else %}cursor-not-allowed{% endif %}" 
+                   data-requirement-id="{{ req.id }}"
+                   {% if req.department_verified %}checked disabled{% endif %}>
+            <span class="text-gray-700 font-medium {% if not req.department_verified %}group-hover:text-blue-600{% endif %} transition-colors">Mark as Verified</span>
+          </label>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  
+  <!-- Approval Section -->
+  <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 text-center">
+    {% if registration.registration_status == 'Approved' %}
+      <!-- Already Approved Message -->
+      <div class="p-6 bg-green-50 text-green-800 rounded-xl">
+        <svg class="w-12 h-12 mx-auto mb-3" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+        </svg>
+        <p class="text-xl font-semibold mb-1">Registration Approved</p>
+        <p class="text-sm">This registration has already been approved.</p>
+      </div>
+    {% elif registration.registration_status == 'Rejected' %}
+      <!-- Rejected Message -->
+      <div class="p-6 bg-red-50 text-red-800 rounded-xl">
+        <svg class="w-12 h-12 mx-auto mb-3" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+        </svg>
+        <p class="text-xl font-semibold mb-1">Registration Rejected</p>
+        <p class="text-sm">This registration has been rejected.</p>
+      </div>
+    {% else %}
+      <!-- Pending - Show Approval Button -->
+      <div id="all-verified-message" style="display: none;" class="mb-6 p-6 bg-green-50 text-green-800 rounded-xl">
+        <svg class="w-8 h-8 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+        </svg>
+        <p class="text-lg font-semibold">All requirements verified! You can now approve this registration.</p>
+      </div>
+      <form id="approveRegistrationForm" method="POST" action="{{ url_for('osas_event_management.approve_registration', registration_id=registration.id) }}" style="display: inline;">
+        <button type="button" 
+                class="inline-flex items-center gap-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-10 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+                onclick="showConfirmModal('Approve Registration', 'Approve this registration for {{ registration.users.full_name }}?', function() { document.getElementById('approveRegistrationForm').submit(); }, 'success')">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+          </svg>
+          Approve Registration
+        </button>
+      </form>
+    {% endif %}
+  </div>
+  
+  {% else %}
+  <!-- No Requirements -->
+  <div class="bg-white rounded-2xl p-12 shadow-sm border border-gray-100 text-center">
+    <svg class="w-20 h-20 mx-auto mb-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+    </svg>
+    <p class="text-xl text-gray-600 mb-2">No requirements set for this event.</p>
+    
+    {% if registration.registration_status == 'Approved' %}
+      <div class="mt-6 p-6 bg-green-50 text-green-800 rounded-xl inline-block">
+        <svg class="w-12 h-12 mx-auto mb-3" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+        </svg>
+        <p class="text-xl font-semibold">Registration Approved</p>
+      </div>
+    {% elif registration.registration_status == 'Rejected' %}
+      <div class="mt-6 p-6 bg-red-50 text-red-800 rounded-xl inline-block">
+        <svg class="w-12 h-12 mx-auto mb-3" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+        </svg>
+        <p class="text-xl font-semibold">Registration Rejected</p>
+      </div>
+    {% else %}
+      <p class="text-gray-500 mb-8">You can approve the registration directly.</p>
+      <form id="approveNoReqForm" method="POST" action="{{ url_for('osas_event_management.approve_registration', registration_id=registration.id) }}">
+        <button type="button" 
+                class="inline-flex items-center gap-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-10 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+                onclick="showConfirmModal('Approve Registration', 'Approve this registration for {{ registration.users.full_name }}?', function() { document.getElementById('approveNoReqForm').submit(); }, 'success')">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+          </svg>
+          Approve Registration
+        </button>
+      </form>
+    {% endif %}
+  </div>
+  {% endif %}
+</div>
+
+<script>
+const registrationId = '{{ registration.id }}';
+
+// Handle checkbox changes
+document.querySelectorAll('.verify-checkbox').forEach(checkbox => {
+  checkbox.addEventListener('change', function() {
+    // Prevent unchecking if already verified
+    if (this.disabled) {
+      return;
+    }
+    
+    const requirementId = this.dataset.requirementId;
+    const verified = this.checked;
+    
+    // Only allow checking (verifying), not unchecking
+    if (verified) {
+      toggleVerification(requirementId, verified);
+    } else {
+      // Revert to checked state
+      this.checked = true;
+    }
+  });
+});
+
+function toggleVerification(requirementId, verified) {
+  const checkbox = document.querySelector(`input[data-requirement-id="${requirementId}"]`);
+  const requirementItem = document.querySelector(`.requirement-item[data-requirement-id="${requirementId}"]`);
+  const statusBadge = requirementItem.querySelector('.status-badge');
+  const statusText = statusBadge.querySelector('.status-text');
+  const statusIcon = statusBadge.querySelector('svg');
+  const statusTimeContainer = requirementItem.querySelector('.status-time');
+  const label = checkbox.closest('label');
+  
+  // Disable checkbox during request
+  checkbox.disabled = true;
+  
+  fetch('{{ url_for("requirements.toggle_requirement_verification") }}', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      registration_id: registrationId,
+      requirement_id: requirementId,
+      verified: verified
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      // Update status badge immediately
+      statusBadge.className = 'status-badge inline-flex items-center gap-2 px-4 py-2 rounded-xl font-medium bg-green-50 text-green-700';
+      statusText.textContent = 'Verified';
+      
+      // Update icon
+      statusIcon.innerHTML = '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>';
+      
+      // Add timestamp
+      const now = new Date().toLocaleString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+      
+      if (statusTimeContainer) {
+        statusTimeContainer.textContent = now;
+      } else {
+        const timeSpan = document.createElement('span');
+        timeSpan.className = 'status-time text-sm text-gray-500';
+        timeSpan.textContent = now;
+        statusBadge.parentNode.appendChild(timeSpan);
+      }
+      
+      // Keep checkbox disabled and update label styling
+      label.classList.remove('cursor-pointer');
+      label.classList.add('cursor-not-allowed', 'opacity-60');
+      checkbox.classList.remove('cursor-pointer');
+      checkbox.classList.add('cursor-not-allowed');
+      
+      // Show message if all verified
+      if (data.all_verified) {
+        document.getElementById('all-verified-message').style.display = 'block';
+      } else {
+        document.getElementById('all-verified-message').style.display = 'none';
+      }
+    } else {
+      alert('Error: ' + data.message);
+      // Revert checkbox
+      checkbox.checked = false;
+      checkbox.disabled = false;
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('Failed to update verification');
+    // Revert checkbox
+    checkbox.checked = false;
+    checkbox.disabled = false;
+  });
+}
+
+// Check if all are verified on load
+window.addEventListener('load', function() {
+  const checkboxes = document.querySelectorAll('.verify-checkbox:not(:disabled)');
+  const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+  
+  if (allChecked && checkboxes.length > 0) {
+    document.getElementById('all-verified-message').style.display = 'block';
+  }
+});
+</script>
+
+{% endblock %}

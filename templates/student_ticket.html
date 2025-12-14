@@ -1,0 +1,132 @@
+{% extends "base_student.html" %}
+
+{% block title %}Event Ticket - Student Portal{% endblock %}
+
+{% block content %}
+<div style="min-height: 100vh;">
+  <div class="container section">
+    <div style="max-width: 600px; margin: 0 auto;">
+      <div class="card" style="border: 2px solid var(--color-accent); overflow: hidden;">
+        <!-- Ticket Header -->
+        <div style="background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-dark) 100%); color: white; padding: 2rem; text-align: center;">
+          <h2 style="font-size: 1.75rem; font-weight: 800; margin-bottom: 0.5rem; color: white;">{{ event.event_name }}</h2>
+          <p style="color: rgba(255, 255, 255, 0.9); font-weight: 500;">LSPU Campus Event</p>
+        </div>
+
+        <!-- QR Code -->
+        <div style="padding: 3rem; text-align: center; background: var(--color-bg-secondary);">
+          <div style="display: inline-block; padding: 1.5rem; background: white; border-radius: var(--radius-lg); box-shadow: var(--shadow-neu-2);">
+            <img src="data:image/png;base64,{{ qr_code }}" alt="QR Code Ticket" style="width: 280px; height: 280px; display: block;">
+          </div>
+          <p style="font-size: 0.9rem; color: var(--color-text-secondary); margin-top: 1.5rem; font-weight: 500;">Scan this QR code at the event entrance</p>
+        </div>
+
+        <!-- Ticket Details -->
+        <div style="padding: 2rem; display: flex; flex-direction: column; gap: 1rem;">
+          <div style="display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid rgba(0, 0, 0, 0.04);">
+            <span style="color: var(--color-text-secondary); font-weight: 600;">Student Name:</span>
+            <span style="color: var(--color-text-primary); font-weight: 700;">{{ user.full_name }}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid rgba(0, 0, 0, 0.04);">
+            <span style="color: var(--color-text-secondary); font-weight: 600;">Student ID:</span>
+            <span style="color: var(--color-text-primary); font-weight: 700;">{{ user.student_id }}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid rgba(0, 0, 0, 0.04);">
+            <span style="color: var(--color-text-secondary); font-weight: 600;">Event Date:</span>
+            <span style="color: var(--color-text-primary); font-weight: 700;">{{ event.date }}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid rgba(0, 0, 0, 0.04);">
+            <span style="color: var(--color-text-secondary); font-weight: 600;">Event Time:</span>
+            <span style="color: var(--color-text-primary); font-weight: 700;">{{ event.start_time|time_12hr }} - {{ event.end_time|time_12hr }}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid rgba(0, 0, 0, 0.04);">
+            <span style="color: var(--color-text-secondary); font-weight: 600;">Location:</span>
+            <span style="color: var(--color-text-primary); font-weight: 700;">{{ event.location }}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid rgba(0, 0, 0, 0.04);">
+            <span style="color: var(--color-text-secondary); font-weight: 600;">Organizer:</span>
+            <span style="color: var(--color-text-primary); font-weight: 700;">
+              {% if event.users %}{% if event.users.role == 'osas' %}OSAS{% else %}{{ event.users.department_name }}{% endif %}{% else %}Department{% endif %}
+            </span>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding: 0.75rem 0;">
+            <span style="color: var(--color-text-secondary); font-weight: 600;">Registration Status:</span>
+            <span style="color: var(--color-success); font-weight: 800; display: flex; align-items: center; gap: 0.5rem;">
+              <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              Approved
+            </span>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div style="padding: 2rem; background: var(--color-bg-secondary); display: flex; flex-direction: column; gap: 0.75rem;">
+          <button onclick="downloadQRCode()" class="btn btn-primary">
+            <svg style="width: 20px; height: 20px; margin-right: 0.5rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+            </svg>
+            Download QR Code
+          </button>
+          <button onclick="window.print()" class="btn btn-secondary">
+            <svg style="width: 20px; height: 20px; margin-right: 0.5rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+            </svg>
+            Print Ticket
+          </button>
+          <a href="{{ url_for('student.view_registrations') }}" class="btn btn-ghost">
+            <svg style="width: 20px; height: 20px; margin-right: 0.5rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+            </svg>
+            Back to Registrations
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+@media print {
+  .sidebar, .top-bar, #mobileMenuBtn, #mobileOverlay, button, a[href] {
+    display: none !important;
+  }
+  .main-content {
+    margin-left: 0 !important;
+  }
+  body {
+    background: white !important;
+  }
+}
+</style>
+
+<script>
+function downloadQRCode() {
+  const qrImage = document.querySelector('img[alt="QR Code Ticket"]');
+  const qrDataUrl = qrImage.src;
+  const eventName = '{{ event.event_name }}'.replace(/[^a-z0-9]/gi, '_');
+  const studentId = '{{ user.student_id }}';
+  const filename = 'Ticket_' + eventName + '_' + studentId + '.png';
+  const link = document.createElement('a');
+  link.href = qrDataUrl;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  showNotification('QR Code downloaded successfully!');
+}
+
+function showNotification(message) {
+  const notification = document.createElement('div');
+  notification.style.cssText = 'position: fixed; top: 2rem; right: 2rem; background: var(--color-success); color: white; padding: 1rem 1.5rem; border-radius: var(--radius-md); box-shadow: var(--shadow-neu-2); z-index: 1000; display: flex; align-items: center; gap: 0.75rem; font-weight: 600; animation: slideIn 0.3s ease;';
+  notification.innerHTML = '<svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><span>' + message + '</span>';
+  document.body.appendChild(notification);
+  setTimeout(function() {
+    notification.style.opacity = '0';
+    notification.style.transform = 'translateY(-20px)';
+    notification.style.transition = 'all 0.3s ease';
+    setTimeout(function() { notification.remove(); }, 300);
+  }, 3000);
+}
+</script>
+{% endblock %}

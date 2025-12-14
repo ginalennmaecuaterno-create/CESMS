@@ -1,149 +1,617 @@
 {% extends "base_osas.html" %}
 
-{% block title %}Event Management{% endblock %}
+{% block title %}Events{% endblock %}
 
 {% block content %}
-<div class="page-header">
-  <h1>Event Management</h1>
-  <p>Manage all events across all departments</p>
-</div>
-
-{% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-    {% for category, message in messages %}
-      <div class="alert alert-{{ category }}">
-        {{ message }}
-      </div>
-    {% endfor %}
-  {% endif %}
-{% endwith %}
-
-<div class="event-summary">
-  <h2>Event Statistics</h2>
-  <div class="summary-cards">
-    <div class="summary-card">
-      <h3>Active</h3>
-      <p class="count">{{ counts.Active }}</p>
-    </div>
-    <div class="summary-card">
-      <h3>Completed</h3>
-      <p class="count">{{ counts.Completed }}</p>
-    </div>
-    <div class="summary-card">
-      <h3>Cancelled</h3>
-      <p class="count">{{ counts.Cancelled }}</p>
-    </div>
-  </div>
-</div>
-
-<div class="filter-section">
-  <h3>Filter by Status:</h3>
-  <div class="filter-buttons">
-    <a href="{{ url_for('osas_event_management.view_all_events', status='all') }}" 
-       class="filter-btn {% if status_filter == 'all' %}active{% endif %}">
-      All Events
-    </a>
-    <a href="{{ url_for('osas_event_management.view_all_events', status='active') }}" 
-       class="filter-btn {% if status_filter == 'active' %}active{% endif %}">
-      Active
-    </a>
-    <a href="{{ url_for('osas_event_management.view_all_events', status='completed') }}" 
-       class="filter-btn {% if status_filter == 'completed' %}active{% endif %}">
-      Completed
-    </a>
-    <a href="{{ url_for('osas_event_management.view_all_events', status='cancelled') }}" 
-       class="filter-btn {% if status_filter == 'cancelled' %}active{% endif %}">
-      Cancelled
-    </a>
-  </div>
-</div>
-
-<div class="events-list">
-  <h2>All Events</h2>
+<!-- Ultra Premium Apple-style Design -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
   
-  {% if events %}
-    <table class="events-table">
-      <thead>
-        <tr>
-          <th>Event Name</th>
-          <th>Department</th>
-          <th>Location</th>
-          <th>Date</th>
-          <th>Time</th>
-          <th>Participant Limit</th>
-          <th>Status</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for event in events %}
-        <tr>
-          <td>
-            <strong>{{ event.event_name }}</strong>
-            {% if event.description %}
-              <br><small>{{ event.description[:60] }}{% if event.description|length > 60 %}...{% endif %}</small>
-            {% endif %}
-          </td>
-          <td>
-            {% if event.users.department_name %}
-              {{ event.users.department_name }}
-            {% else %}
-              {{ event.users.full_name }}
-            {% endif %}
-          </td>
-          <td>{{ event.location }}</td>
-          <td>{{ event.date }}</td>
-          <td>{{ event.start_time }} - {{ event.end_time }}</td>
-          <td>
-            {% if event.participant_limit %}
-              {{ event.participant_limit }}
-            {% else %}
-              Unlimited
-            {% endif %}
-          </td>
-          <td>
-            <span class="status-badge status-{{ event.status.lower() }}">
-              {{ event.status }}
-            </span>
-          </td>
-          <td>
-            {% if event.status == 'Active' %}
-              <div class="action-buttons">
-                <a href="{{ url_for('osas_event_management.postpone_osas_event', event_id=event.id) }}" 
-                   class="btn-secondary">
-                  Postpone
-                </a>
-                <a href="{{ url_for('osas_event_management.cancel_osas_event', event_id=event.id) }}" 
-                   class="btn-danger"
-                   onclick="return confirm('Are you sure you want to cancel this event?')">
-                  Cancel
-                </a>
-              </div>
-            {% else %}
-              <span class="no-action">-</span>
-            {% endif %}
-          </td>
-        </tr>
+  <!-- Page Header with Gradient -->
+  <div class="mb-8 sm:mb-12">
+    <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 tracking-tight mb-2 bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
+      Events
+    </h1>
+    <p class="text-base sm:text-lg text-gray-500">Manage all events across all departments</p>
+  </div>
+
+  <!-- Flash Messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="mb-6 px-5 py-3.5 rounded-xl backdrop-blur-sm {% if category == 'success' %}bg-green-50/80 text-green-800 border border-green-200{% elif category == 'danger' %}bg-red-50/80 text-red-800 border border-red-200{% elif category == 'warning' %}bg-yellow-50/80 text-yellow-800 border border-yellow-200{% else %}bg-blue-50/80 text-blue-800 border border-blue-200{% endif %} animate-slide-in">
+          <div class="flex items-center gap-2">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+            </svg>
+            {{ message }}
+          </div>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <!-- Event Statistics - Elegant Cards -->
+  <div class="mb-6 sm:mb-8 lg:mb-10">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
+      <div class="bg-gradient-to-br from-blue-50 to-blue-100/50 rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-6 border border-blue-200/50 hover:shadow-lg hover:scale-105 transition-all duration-300">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between gap-2">
+          <div>
+            <div class="text-xs sm:text-sm font-medium text-blue-600 mb-1">Active</div>
+            <div class="text-2xl sm:text-3xl lg:text-4xl font-bold text-blue-700">{{ counts.Active }}</div>
+          </div>
+          <div class="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 bg-blue-600 rounded-xl sm:rounded-2xl flex items-center justify-center shrink-0">
+            <svg class="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+            </svg>
+          </div>
+        </div>
+      </div>
+      
+      <div class="bg-gradient-to-br from-red-50 to-red-100/50 rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-6 border border-red-200/50 hover:shadow-lg hover:scale-105 transition-all duration-300">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between gap-2">
+          <div>
+            <div class="text-xs sm:text-sm font-medium text-red-600 mb-1">Ongoing</div>
+            <div class="text-2xl sm:text-3xl lg:text-4xl font-bold text-red-700">{{ counts.Ongoing }}</div>
+          </div>
+          <div class="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 bg-red-600 rounded-xl sm:rounded-2xl flex items-center justify-center shrink-0">
+            <svg class="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+        </div>
+      </div>
+      
+      <div class="bg-gradient-to-br from-green-50 to-green-100/50 rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-6 border border-green-200/50 hover:shadow-lg hover:scale-105 transition-all duration-300">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between gap-2">
+          <div>
+            <div class="text-xs sm:text-sm font-medium text-green-600 mb-1">Completed</div>
+            <div class="text-2xl sm:text-3xl lg:text-4xl font-bold text-green-700">{{ counts.Completed }}</div>
+          </div>
+          <div class="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 bg-green-600 rounded-xl sm:rounded-2xl flex items-center justify-center shrink-0">
+            <svg class="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+        </div>
+      </div>
+      
+      <div class="bg-gradient-to-br from-gray-50 to-gray-100/50 rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-6 border border-gray-200/50 hover:shadow-lg hover:scale-105 transition-all duration-300">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between gap-2">
+          <div>
+            <div class="text-xs sm:text-sm font-medium text-gray-600 mb-1">Cancelled</div>
+            <div class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-700">{{ counts.Cancelled }}</div>
+          </div>
+          <div class="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 bg-gray-600 rounded-xl sm:rounded-2xl flex items-center justify-center shrink-0">
+            <svg class="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter Section -->
+  <div class="mb-6 sm:mb-8 bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-gray-200 shadow-sm">
+    
+    <!-- Search Bar and Clear Filters -->
+    <div class="mb-4 sm:mb-6 flex flex-col sm:flex-row gap-2 sm:gap-3">
+      <div class="flex-1 relative">
+        <input 
+          type="text" 
+          id="searchInput" 
+          placeholder="Search events..." 
+          class="w-full px-4 sm:px-5 py-2.5 sm:py-3 pl-10 sm:pl-12 text-sm sm:text-base border border-gray-300 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all outline-none bg-gray-50"
+          onkeyup="filterEvents()"
+        >
+        <svg class="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 absolute left-3 sm:left-4 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+      </div>
+      {% if status_filter != 'all' or event_type_filter != 'all' or creator_filter != 'all' or department_filter != 'all' %}
+      <a href="{{ url_for('osas_event_management.view_all_events') }}" 
+         class="inline-flex items-center justify-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 text-sm sm:text-base bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg sm:rounded-xl transition-all duration-200 whitespace-nowrap">
+        <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+        Clear Filters
+      </a>
+      {% endif %}
+    </div>
+
+    <!-- Active Filters Display -->
+    {% if status_filter != 'all' or event_type_filter != 'all' or creator_filter != 'all' or department_filter != 'all' %}
+    <div class="mb-6 flex flex-wrap items-center gap-2">
+      <span class="text-sm text-gray-600 font-medium">Active filters:</span>
+      {% if status_filter != 'all' %}
+      <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-100 text-blue-700 rounded-lg text-sm font-medium">
+        Status: {{ status_filter|title }}
+        <a href="{{ url_for('osas_event_management.view_all_events', status='all', event_type=event_type_filter, department=department_filter, creator=creator_filter) }}" class="hover:text-blue-900">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </a>
+      </span>
+      {% endif %}
+      {% if event_type_filter != 'all' %}
+      <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-100 text-blue-700 rounded-lg text-sm font-medium">
+        Type: {{ 'Limited Seat' if event_type_filter == 'limited' else 'Free for All' }}
+        <a href="{{ url_for('osas_event_management.view_all_events', status=status_filter, event_type='all', department=department_filter, creator=creator_filter) }}" class="hover:text-blue-900">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </a>
+      </span>
+      {% endif %}
+      {% if creator_filter != 'all' %}
+      <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-100 text-blue-700 rounded-lg text-sm font-medium">
+        Creator: {{ 'OSAS' if creator_filter == 'osas' else 'Departments' }}
+        <a href="{{ url_for('osas_event_management.view_all_events', status=status_filter, event_type=event_type_filter, department=department_filter, creator='all') }}" class="hover:text-blue-900">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </a>
+      </span>
+      {% endif %}
+      {% if department_filter != 'all' %}
+      <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-100 text-blue-700 rounded-lg text-sm font-medium">
+        Dept: {{ department_filter }}
+        <a href="{{ url_for('osas_event_management.view_all_events', status=status_filter, event_type=event_type_filter, department='all', creator=creator_filter) }}" class="hover:text-blue-900">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </a>
+      </span>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Collapsible Filter Sections -->
+    <!-- Status Filters -->
+    <div class="mb-6">
+      <button onclick="toggleFilter('statusFilter')" class="w-full flex items-center justify-between text-left mb-3 group">
+        <h3 class="text-sm font-semibold text-gray-700 group-hover:text-gray-900">Status</h3>
+        <svg id="statusFilterIcon" class="w-5 h-5 text-gray-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+        </svg>
+      </button>
+      <div id="statusFilter" class="flex flex-wrap gap-2">
+        <a href="{{ url_for('osas_event_management.view_all_events', status='all', event_type=event_type_filter, department=department_filter, creator=creator_filter) }}" 
+           class="px-3 sm:px-4 lg:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 whitespace-nowrap {% if status_filter == 'all' %}bg-gray-900 text-white shadow-lg shadow-gray-900/30{% else %}bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200{% endif %}">
+          All Events
+        </a>
+        <a href="{{ url_for('osas_event_management.view_all_events', status='active', event_type=event_type_filter, department=department_filter, creator=creator_filter) }}" 
+           class="px-3 sm:px-4 lg:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 whitespace-nowrap {% if status_filter == 'active' %}bg-blue-600 text-white shadow-lg shadow-blue-600/30{% else %}bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200{% endif %}">
+          Active
+        </a>
+        <a href="{{ url_for('osas_event_management.view_all_events', status='ongoing', event_type=event_type_filter, department=department_filter, creator=creator_filter) }}" 
+           class="px-3 sm:px-4 lg:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 whitespace-nowrap {% if status_filter == 'ongoing' %}bg-red-600 text-white shadow-lg shadow-red-600/30{% else %}bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200{% endif %}">
+          Ongoing
+        </a>
+        <a href="{{ url_for('osas_event_management.view_all_events', status='completed', event_type=event_type_filter, department=department_filter, creator=creator_filter) }}" 
+           class="px-3 sm:px-4 lg:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 whitespace-nowrap {% if status_filter == 'completed' %}bg-green-600 text-white shadow-lg shadow-green-600/30{% else %}bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200{% endif %}">
+          Completed
+        </a>
+        <a href="{{ url_for('osas_event_management.view_all_events', status='cancelled', event_type=event_type_filter, department=department_filter, creator=creator_filter) }}" 
+           class="px-3 sm:px-4 lg:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 whitespace-nowrap {% if status_filter == 'cancelled' %}bg-gray-600 text-white shadow-lg shadow-gray-600/30{% else %}bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200{% endif %}">
+          Cancelled
+        </a>
+      </div>
+    </div>
+
+    <!-- Event Type Filters -->
+    <div class="mb-6">
+      <button onclick="toggleFilter('typeFilter')" class="w-full flex items-center justify-between text-left mb-3 group">
+        <h3 class="text-sm font-semibold text-gray-700 group-hover:text-gray-900">Event Type</h3>
+        <svg id="typeFilterIcon" class="w-5 h-5 text-gray-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+        </svg>
+      </button>
+      <div id="typeFilter" class="flex flex-wrap gap-2">
+        <a href="{{ url_for('osas_event_management.view_all_events', status=status_filter, event_type='all', department=department_filter, creator=creator_filter) }}" 
+           class="px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 {% if event_type_filter == 'all' %}bg-gray-900 text-white shadow-lg shadow-gray-900/30{% else %}bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200{% endif %}">
+          All Types
+        </a>
+        <a href="{{ url_for('osas_event_management.view_all_events', status=status_filter, event_type='limited', department=department_filter, creator=creator_filter) }}" 
+           class="px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 {% if event_type_filter == 'limited' %}bg-blue-600 text-white shadow-lg shadow-blue-600/30{% else %}bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200{% endif %}">
+          Limited Seat
+        </a>
+        <a href="{{ url_for('osas_event_management.view_all_events', status=status_filter, event_type='free', department=department_filter, creator=creator_filter) }}" 
+           class="px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 {% if event_type_filter == 'free' %}bg-blue-600 text-white shadow-lg shadow-blue-600/30{% else %}bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200{% endif %}">
+          Free for All
+        </a>
+      </div>
+    </div>
+
+    <!-- Creator Filters -->
+    <div class="mb-6">
+      <button onclick="toggleFilter('creatorFilter')" class="w-full flex items-center justify-between text-left mb-3 group">
+        <h3 class="text-sm font-semibold text-gray-700 group-hover:text-gray-900">Created By</h3>
+        <svg id="creatorFilterIcon" class="w-5 h-5 text-gray-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+        </svg>
+      </button>
+      <div id="creatorFilter" class="flex flex-wrap gap-2">
+        <a href="{{ url_for('osas_event_management.view_all_events', status=status_filter, event_type=event_type_filter, department=department_filter, creator='all') }}" 
+           class="px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 {% if creator_filter == 'all' %}bg-gray-900 text-white shadow-lg shadow-gray-900/30{% else %}bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200{% endif %}">
+          All Creators
+        </a>
+        <a href="{{ url_for('osas_event_management.view_all_events', status=status_filter, event_type=event_type_filter, department=department_filter, creator='osas') }}" 
+           class="px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 {% if creator_filter == 'osas' %}bg-blue-600 text-white shadow-lg shadow-blue-600/30{% else %}bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200{% endif %}">
+          OSAS Events
+        </a>
+        <a href="{{ url_for('osas_event_management.view_all_events', status=status_filter, event_type=event_type_filter, department=department_filter, creator='departments') }}" 
+           class="px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 {% if creator_filter == 'departments' %}bg-blue-600 text-white shadow-lg shadow-blue-600/30{% else %}bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200{% endif %}">
+          Department Events
+        </a>
+      </div>
+    </div>
+
+    <!-- Department Filters -->
+    {% if departments %}
+    <div>
+      <button onclick="toggleFilter('deptFilter')" class="w-full flex items-center justify-between text-left mb-3 group">
+        <h3 class="text-sm font-semibold text-gray-700 group-hover:text-gray-900">Department</h3>
+        <svg id="deptFilterIcon" class="w-5 h-5 text-gray-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+        </svg>
+      </button>
+      <div id="deptFilter" class="flex flex-wrap gap-2">
+        <a href="{{ url_for('osas_event_management.view_all_events', status=status_filter, event_type=event_type_filter, department='all', creator=creator_filter) }}" 
+           class="px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 {% if department_filter == 'all' %}bg-gray-900 text-white shadow-lg shadow-gray-900/30{% else %}bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200{% endif %}">
+          All Departments
+        </a>
+        {% for dept in departments %}
+        <a href="{{ url_for('osas_event_management.view_all_events', status=status_filter, event_type=event_type_filter, department=dept, creator=creator_filter) }}" 
+           class="px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 {% if department_filter == dept %}bg-blue-600 text-white shadow-lg shadow-blue-600/30{% else %}bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200{% endif %}">
+          {{ dept }}
+        </a>
         {% endfor %}
-      </tbody>
-    </table>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Results Count -->
+    <div class="mt-6 pt-6 border-t border-gray-200 flex items-center justify-between">
+      <div class="text-sm text-gray-600">
+        Showing <span id="visibleCount" class="font-semibold text-gray-900">{{ events|length }}</span> of <span class="font-semibold text-gray-900">{{ events|length }}</span> event{% if events|length != 1 %}s{% endif %}
+      </div>
+      <button onclick="resetSearch()" class="text-sm text-gray-600 hover:text-gray-900 font-medium hidden" id="resetSearchBtn">
+        Reset search
+      </button>
+    </div>
+  </div>
+
+  <!-- Events as Premium Cards -->
+  {% if events %}
+    <div class="space-y-4" id="eventsContainer">
+      {% for event in events %}
+      <div class="event-card group bg-white rounded-2xl p-7 border border-gray-200 hover:border-gray-300 hover:shadow-xl transition-all duration-300 hover:-translate-y-1" 
+           data-event-name="{{ event.event_name|lower }}" 
+           data-location="{{ event.location|lower }}" 
+           data-department="{% if event.users.department_name %}{{ event.users.department_name|lower }}{% else %}{{ event.users.full_name|lower }}{% endif %}">
+        <div class="flex items-start justify-between gap-6">
+          
+          <!-- Event Info -->
+          <div class="flex-1 min-w-0">
+            <!-- Header -->
+            <div class="flex items-start gap-4 mb-4">
+              <div class="flex-1">
+                <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
+                  <h3 class="text-lg sm:text-xl font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+                    {{ event.event_name }}
+                  </h3>
+                  <span class="inline-flex items-center px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs font-semibold shrink-0 w-fit
+                    {% if event.display_status == 'Active' %}bg-blue-100 text-blue-700 ring-1 ring-blue-600/20
+                    {% elif event.display_status == 'Ongoing' %}bg-red-100 text-red-700 ring-1 ring-red-600/20
+                    {% elif event.display_status == 'Completed' %}bg-green-100 text-green-700 ring-1 ring-green-600/20
+                    {% elif event.display_status == 'Cancelled' %}bg-gray-100 text-gray-700 ring-1 ring-gray-600/20
+                    {% endif %}">
+                    {{ event.display_status }}
+                  </span>
+                </div>
+                {% if event.description %}
+                  <p class="text-sm text-gray-600 line-clamp-2 leading-relaxed">{{ event.description }}</p>
+                {% endif %}
+              </div>
+            </div>
+            
+            <!-- Event Details Grid with Icons -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-5 p-3 sm:p-4 bg-gray-50 rounded-lg sm:rounded-xl">
+              <div class="flex items-start gap-2">
+                <svg class="w-5 h-5 text-gray-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                </svg>
+                <div class="min-w-0">
+                  <div class="text-[10px] sm:text-xs text-gray-500 mb-0.5">Department</div>
+                  <div class="text-xs sm:text-sm font-medium text-gray-900 truncate">
+                    {% if event.users.department_name %}
+                      {{ event.users.department_name }}
+                    {% else %}
+                      {{ event.users.full_name }}
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+              
+              <div class="flex items-start gap-2">
+                <svg class="w-5 h-5 text-gray-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+                <div class="min-w-0">
+                  <div class="text-xs text-gray-500 mb-0.5">Location</div>
+                  <div class="text-sm font-medium text-gray-900 truncate">{{ event.location }}</div>
+                </div>
+              </div>
+              
+              <div class="flex items-start gap-2">
+                <svg class="w-5 h-5 text-gray-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                <div class="min-w-0">
+                  <div class="text-xs text-gray-500 mb-0.5">Date</div>
+                  <div class="text-sm font-medium text-gray-900">{{ event.date }}</div>
+                </div>
+              </div>
+              
+              <div class="flex items-start gap-2">
+                <svg class="w-5 h-5 text-gray-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <div class="min-w-0">
+                  <div class="text-xs text-gray-500 mb-0.5">Time</div>
+                  <div class="text-sm font-medium text-gray-900">{{ event.start_time|time_12hr }} - {{ event.end_time|time_12hr }}</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Participant Limit Badge -->
+            {% if event.participant_limit %}
+              <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg text-sm font-medium mb-4">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                </svg>
+                Limited to {{ event.participant_limit }} participants
+              </div>
+            {% endif %}
+            
+            <!-- Action Buttons - Conditional based on display_status -->
+            <div class="flex flex-wrap gap-1.5 sm:gap-2">
+              {% if event.department_id == user.id %}
+                
+                {# Active Status: All actions available #}
+                {% if event.display_status == 'Active' %}
+                  {% if event.participant_limit %}
+                    <a href="{{ url_for('osas_event_management.view_registration_details', event_id=event.id) }}" 
+                       class="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-blue-600 text-white text-xs sm:text-sm font-medium rounded-lg sm:rounded-xl hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-600/30 transition-all duration-200">
+                      <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                      </svg>
+                      Registrations
+                    </a>
+                    <a href="{{ url_for('osas_event_management.manage_event_requirements', event_id=event.id) }}" 
+                       class="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-600/30 transition-all duration-200">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                      </svg>
+                      Requirements
+                    </a>
+                    <a href="{{ url_for('osas_event_management.view_event_attendance', event_id=event.id) }}" 
+                       class="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-600/30 transition-all duration-200">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+                      </svg>
+                      Attendance
+                    </a>
+                  {% endif %}
+                  <a href="{{ url_for('osas_event_management.view_event_feedback', event_id=event.id) }}" 
+                     class="inline-flex items-center gap-2 px-4 py-2.5 bg-green-600 text-white text-sm font-medium rounded-xl hover:bg-green-700 hover:shadow-lg hover:shadow-green-600/30 transition-all duration-200">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path>
+                    </svg>
+                    Feedback
+                  </a>
+                  <a href="{{ url_for('osas_event_management.postpone_osas_event', event_id=event.id) }}" 
+                     class="inline-flex items-center gap-2 px-4 py-2.5 bg-white text-gray-700 text-sm font-medium rounded-xl border border-gray-300 hover:bg-gray-50 hover:shadow-md transition-all duration-200">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    Postpone
+                  </a>
+                  <a href="javascript:void(0)" 
+                     class="inline-flex items-center gap-2 px-4 py-2.5 bg-red-600 text-white text-sm font-medium rounded-xl hover:bg-red-700 hover:shadow-lg hover:shadow-red-600/30 transition-all duration-200"
+                     onclick="showConfirmModal('Cancel Event', 'Are you sure you want to cancel this event? This action cannot be undone.', function() { window.location.href = '{{ url_for('osas_event_management.cancel_osas_event', event_id=event.id) }}'; }, 'danger')">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                    Cancel
+                  </a>
+                
+                {# Ongoing Status: View actions + QR Scan, Cancel only #}
+                {% elif event.display_status == 'Ongoing' %}
+                  {% if event.participant_limit %}
+                    <a href="{{ url_for('osas_event_management.view_registration_details', event_id=event.id) }}" 
+                       class="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-blue-600 text-white text-xs sm:text-sm font-medium rounded-lg sm:rounded-xl hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-600/30 transition-all duration-200">
+                      <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                      </svg>
+                      Registrations
+                    </a>
+                    <a href="{{ url_for('osas_event_management.view_event_attendance', event_id=event.id) }}" 
+                       class="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-600/30 transition-all duration-200">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+                      </svg>
+                      Attendance
+                    </a>
+                    <a href="{{ url_for('osas_event_management.scan_qr', event_id=event.id) }}" 
+                       class="inline-flex items-center gap-2 px-4 py-2.5 bg-purple-600 text-white text-sm font-medium rounded-xl hover:bg-purple-700 hover:shadow-lg hover:shadow-purple-600/30 transition-all duration-200">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
+                      </svg>
+                      QR Scan
+                    </a>
+                  {% endif %}
+                  <a href="{{ url_for('osas_event_management.view_event_feedback', event_id=event.id) }}" 
+                     class="inline-flex items-center gap-2 px-4 py-2.5 bg-green-600 text-white text-sm font-medium rounded-xl hover:bg-green-700 hover:shadow-lg hover:shadow-green-600/30 transition-all duration-200">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path>
+                    </svg>
+                    Feedback
+                  </a>
+                
+                {# Completed Status: View-only actions #}
+                {% elif event.display_status == 'Completed' %}
+                  {% if event.participant_limit %}
+                    <a href="{{ url_for('osas_event_management.view_registration_details', event_id=event.id) }}" 
+                       class="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-blue-600 text-white text-xs sm:text-sm font-medium rounded-lg sm:rounded-xl hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-600/30 transition-all duration-200">
+                      <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                      </svg>
+                      Registrations
+                    </a>
+                    <a href="{{ url_for('osas_event_management.view_event_attendance', event_id=event.id) }}" 
+                       class="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-600/30 transition-all duration-200">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+                      </svg>
+                      Attendance
+                    </a>
+                  {% endif %}
+                  <a href="{{ url_for('osas_event_management.view_event_feedback', event_id=event.id) }}" 
+                     class="inline-flex items-center gap-2 px-4 py-2.5 bg-green-600 text-white text-sm font-medium rounded-xl hover:bg-green-700 hover:shadow-lg hover:shadow-green-600/30 transition-all duration-200">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path>
+                    </svg>
+                    Feedback
+                  </a>
+                
+                {# Cancelled Status: View Registrations only #}
+                {% elif event.display_status == 'Cancelled' %}
+                  {% if event.participant_limit %}
+                    <a href="{{ url_for('osas_event_management.view_registration_details', event_id=event.id) }}" 
+                       class="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-gray-600 text-white text-xs sm:text-sm font-medium rounded-lg sm:rounded-xl hover:bg-gray-700 hover:shadow-lg hover:shadow-gray-600/30 transition-all duration-200">
+                      <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                      </svg>
+                      Registrations
+                    </a>
+                  {% endif %}
+                {% endif %}
+                
+              {% endif %}
+            </div>
+          </div>
+          
+        </div>
+      </div>
+      {% endfor %}
+    </div>
   {% else %}
-    <div class="no-events">
-      <p>No events found for this filter.</p>
+    <div class="text-center py-24 bg-gradient-to-br from-gray-50 to-gray-100/50 rounded-3xl border border-gray-200">
+      <div class="w-20 h-20 mx-auto mb-6 bg-gray-200 rounded-full flex items-center justify-center">
+        <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+        </svg>
+      </div>
+      <p class="text-xl text-gray-900 font-semibold mb-2">No events found</p>
+      <p class="text-sm text-gray-500">Try adjusting your filter to see more events</p>
     </div>
   {% endif %}
+
 </div>
 
-<div class="info-box">
-  <h3>OSAS Event Management:</h3>
-  <ul>
-    <li><strong>Administrative Override:</strong> OSAS can manage any event from any department</li>
-    <li><strong>Cancel Event:</strong> Change event status to "Cancelled" (cannot be undone)</li>
-    <li><strong>Postpone Event:</strong> Reschedule event to a new date/time (with conflict check)</li>
-    <li><strong>Active Events:</strong> Events that are currently open for registration and attendance</li>
-    <li><strong>Completed Events:</strong> Events that have finished</li>
-    <li><strong>Cancelled Events:</strong> Events that were cancelled by department or OSAS</li>
-  </ul>
-</div>
+<style>
+  @keyframes slide-in {
+    from { opacity: 0; transform: translateX(-20px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  .animate-slide-in {
+    animation: slide-in 0.4s ease-out;
+  }
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>
+
+<script>
+  // Search functionality
+  function filterEvents() {
+    const searchInput = document.getElementById('searchInput').value.toLowerCase();
+    const eventCards = document.querySelectorAll('.event-card');
+    const resetBtn = document.getElementById('resetSearchBtn');
+    let visibleCount = 0;
+    
+    eventCards.forEach(card => {
+      const eventName = card.getAttribute('data-event-name');
+      const location = card.getAttribute('data-location');
+      const department = card.getAttribute('data-department');
+      
+      const matches = eventName.includes(searchInput) || 
+                     location.includes(searchInput) || 
+                     department.includes(searchInput);
+      
+      if (matches) {
+        card.style.display = '';
+        visibleCount++;
+      } else {
+        card.style.display = 'none';
+      }
+    });
+    
+    document.getElementById('visibleCount').textContent = visibleCount;
+    
+    if (searchInput) {
+      resetBtn.classList.remove('hidden');
+    } else {
+      resetBtn.classList.add('hidden');
+    }
+    
+    // Show "no results" message if needed
+    const container = document.getElementById('eventsContainer');
+    let noResultsMsg = document.getElementById('noResultsMsg');
+    
+    if (visibleCount === 0 && searchInput) {
+      if (!noResultsMsg) {
+        noResultsMsg = document.createElement('div');
+        noResultsMsg.id = 'noResultsMsg';
+        noResultsMsg.className = 'text-center py-12 bg-gray-50 rounded-2xl border border-gray-200';
+        noResultsMsg.innerHTML = `
+          <svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+          <p class="text-lg text-gray-900 font-semibold mb-1">No events found</p>
+          <p class="text-sm text-gray-500">Try a different search term</p>
+        `;
+        container.appendChild(noResultsMsg);
+      }
+    } else if (noResultsMsg) {
+      noResultsMsg.remove();
+    }
+  }
+  
+  function resetSearch() {
+    document.getElementById('searchInput').value = '';
+    filterEvents();
+  }
+  
+  // Toggle filter sections
+  function toggleFilter(filterId) {
+    const filterDiv = document.getElementById(filterId);
+    const icon = document.getElementById(filterId + 'Icon');
+    
+    if (filterDiv.style.display === 'none') {
+      filterDiv.style.display = 'flex';
+      icon.style.transform = 'rotate(0deg)';
+    } else {
+      filterDiv.style.display = 'none';
+      icon.style.transform = 'rotate(-90deg)';
+    }
+  }
+</script>
 
 {% endblock %}
